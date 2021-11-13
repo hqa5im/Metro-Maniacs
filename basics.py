@@ -1,17 +1,17 @@
 import pygame
+import random
+import os
+import time
 from sys import exit
 
 pygame.init()
 
+width = 500
+height = 800
+
 # Assets: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
 
-# Background: https://www.google.com/url?
-# sa=i&url=https%3A%2F%2Fwww.crispedge.com
-# %2Ffaq%2Fwhat-is-the-color-of-tan-brown&
-# psig=AOvVaw3FbpRbdicm8yDhb1zNSfqh&ust=
-# 1636791099622000&source=images&cd=vfe&ved=0CAsQjRxqFwoTCLjSq5KwkvQCFQAAAAAdAAAAABAD
-
-# Reference for side movement: 
+# Background: https://htmlcolorcodes.com/colors/purple/
 
 # creating a class for sprites
 class Running(pygame.sprite.Sprite):
@@ -38,53 +38,85 @@ class Running(pygame.sprite.Sprite):
         # starting position
         self.rect = self.image.get_rect(midbottom = (self.x, self.y))
 
+        # other variables 
+        self.jump = False
+        self.jumpCount = 0
+
     # controls the movement of the sprite 
     # such as changing of frames 
     # and going left and right
-    def update(self, pressed_key):
+    def update(self, key, posX, posY):
         self.currentSprite += 1
         if self.currentSprite >= len(self.sprite):
             self.currentSprite = 0
         self.image = self.sprite[self.currentSprite]
 
-        if pressed_key[pygame.K_a]:
-            pygame.Rect.move_ip(self.rect, -70, 0)
-        if pressed_key[pygame.K_d]:
-            pygame.Rect.move_ip(self.rect, 70, 0)
-        # if pressed_key[pygame.K_w]:
-        #     pygame.Rect.move_ip(self.rect, 0, -50) ## to jump
-        #     pygame.Rect.move_ip(self.rect, 0, 0)
+        if key[pygame.K_a] and self.rect[0] - posX >= 0:
+            pygame.Rect.move_ip(self.rect, -posX, 0)
+        if key[pygame.K_d] and self.rect[0] + posX <= 350:
+            pygame.Rect.move_ip(self.rect, posX, 0)
+        if key[pygame.K_w] and self.jumpCount < 3:
+            self.jump = True
+            self.jumpCount += 1
+            print(self.jumpCount)
+            pygame.Rect.move_ip(self.rect, 0, -posY) ## to jump
+        else:
+            self.jump = False
+            pygame.Rect.move_ip(self.rect, 0, 0) ## doesnt go back down
 
+# class Obstacles(pygame.sprite.Sprite):
+#     def __init__(self):
+#         super().__init__()
+#         self.trainObs = pygame.image.load("obstacles/train.png")
+#         self.slideObs = pygame.image.load("obstacles/slideObs.png")
+#         self.jumpObs = pygame.image.load("obstacles/jumpObs.png")
 
-width = 500
-height = 800
+def mainLoop():
+    clock = pygame.time.Clock()
+    screen = pygame.display.set_mode((width, height))
+    pygame.display.set_caption("Metro Maniacs")
 
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Metro Maniacs")
+    # background through image
+    background = pygame.image.load("purple.png")
 
-# background through image
-background = pygame.image.load("brown.png")
+    # train variables
+    # needs to move and randomize
+    trainXChoices = [50, -90, -220]
+    trainX = random.choice(trainXChoices)
+    trainY = -600
+    trainObs = pygame.image.load("obstacles/train.png")
+    trainObs = pygame.transform.scale(trainObs, (320, 650))
 
-# sprite pics
-linkRun = pygame.sprite.Group()
-running = Running(width/2, height - 100)
-linkRun.add(running) # add the sprites at this position
+    # running sprite pics
+    linkRun = pygame.sprite.Group()
+    running = Running(width/2, height - 100)
+    linkRun.add(running) # add the sprites at this position
 
-# general setup
-running = True
-while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            pygame.quit()
-            exit()
-        
-    screen.blit(background, (0, 0)) # coordinates x1 y1
-    linkRun.draw(screen)
-    linkRun.update(pygame.key.get_pressed())
-    pygame.display.update()
-    pygame.display.flip() # make running look more smoother
-    clock.tick(15)
+    # general setup
+    running = True
+    while running:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+
+        if trainY < 750:
+            trainY += 20
+        else:
+            # remove train and spawn new train 
+            # in random location
+            trainY = -600
+            
+        screen.blit(background, (0, 0)) # coordinates x1 y1
+        screen.blit(trainObs, (-trainX, trainY))
+
+        linkRun.draw(screen)
+        linkRun.update(pygame.key.get_pressed(), 70, 50)
+        pygame.display.update()
+        pygame.display.flip() # make running look more smoother
+        clock.tick(15)
+
+mainLoop()
 
 
 
