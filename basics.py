@@ -5,7 +5,7 @@ import time
 from sys import exit
 
 # Assets: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
-# basic loop and sprite template: clearcode
+# basic loop and intial sprite template: clearcode
 # Background: https://htmlcolorcodes.com/colors/purple/
 # background music : https://www.zapsplat.com/music/
 #                       game-music-action-faced-paced-euro-style-house-rave
@@ -64,15 +64,17 @@ class Running(pygame.sprite.Sprite):
             self.pressed = True
             pygame.Rect.move_ip(self.rect, posX, 0)
 
-        if key[pygame.K_w] and self.jumpCount < 3:
+        if key[pygame.K_w] and self.jumpCount < 2:
             self.pressed = True
             self.jump = True
             self.jumpCount += 1
             # print(self.jumpCount)
             pygame.Rect.move_ip(self.rect, 0, -posY) ## to jump
-        else:
+        elif self.jumpCount >= 2:
             self.jump = False
-            pygame.Rect.move_ip(self.rect, 0, 0) ## doesnt go back down
+            self.jumpCount = 0
+            pygame.Rect.move_ip(self.rect, 0, 2*posY) ## doesnt go back down
+
         if key[pygame.K_s]:
             self.pressed = True
             self.slide = True
@@ -83,8 +85,33 @@ class Running(pygame.sprite.Sprite):
             self.pressed = False
 
 # for single sliding sprite
-class Slide(pygame.sprite.Sprite):
-    pass
+# class Slide(pygame.sprite.Sprite):
+    # def __init__(self, x, y):
+    #     super().__init__()
+    #     self.x = x
+    #     self.y = y
+
+    #     # other variables
+    #     self.slide = False
+    #     self.slideCount = 0
+
+    #     self.sliding = pygame.image.load("linkSlide.png")
+    #     self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
+
+    # def update(self, key):
+
+    #     # key = pygame.key.get_pressed()
+
+    #     if key[pygame.K_s]:
+    #         self.pressed = True
+    #         self.slide = True
+    #         self.slideCount += 1
+    #         # make character slide and change sprite being used
+
+    #     if pygame.key.get_pressed()[0] == False:
+    #         self.pressed = False
+
+    #     pass
 
 class gameState():
     def __init__(self):
@@ -105,7 +132,7 @@ class gameState():
         jumpXChoices = [-30, -165, -305]
         self.jumpXChoices = [-30, -165, -305]
         self.jumpX = random.choice(jumpXChoices)
-        self.jumpY = -300
+        self.jumpY = -600
         jumpObs = pygame.image.load("obstacles/jumpObs.png")
         self.jumpObs = pygame.transform.scale(jumpObs, (150, 120))
         self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY)) ######
@@ -177,6 +204,8 @@ class gameState():
                 exit()
 
         screen.blit(gameBackground, (0, 0))
+        # need to add restart button
+        # need to add score
         # pass
 
     def game(self):
@@ -269,6 +298,10 @@ slideObs = pygame.transform.scale(slideObs, (150, 120))
 linkRun = pygame.sprite.Group()
 running = Running(width/2, height - 100)
 linkRun.add(running) # add the sprites at this position
+
+# sliding sprite pics
+# linkSlides = pygame.sprite.GroupSingle()
+# sliding = Slide()
 
 # main loop
 running = True
