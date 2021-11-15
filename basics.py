@@ -49,7 +49,7 @@ class Running(pygame.sprite.Sprite):
     # controls the movement of the sprite 
     # such as changing of frames 
     # and going left and right
-    def update(self, key, posX, posY):
+    def update(self, posX, posY):
         self.currentSprite += 1
         if self.currentSprite >= len(self.sprite):
             self.currentSprite = 0
@@ -78,21 +78,19 @@ class Slide(pygame.sprite.Sprite):
         self.x = x
         self.y = y
 
-        # other variables
-        self.slide = False
-
         self.sliding = pygame.image.load("linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
-    def update2(self, key):
-        # key = pygame.key.get_pressed()
-        if key[pygame.K_s]:
-            self.pressed = True
-            self.slide = True
-            self.slideCount += 1
-            # make character slide and change sprite being used
-        pass
-    pass
+        # other variables
+        self.slide = False
+
+    def update(self):
+        if self.slide:
+            self.sliding
+            # remove old sprite
+            # add new sprite
+            self.slide = False
+
 
 class gameState():
     def __init__(self):
@@ -205,7 +203,8 @@ class gameState():
                     runningLink.jump = True
 
                 if event.unicode == "s":
-                    runningLink.slide = True
+                    print("sliding!")
+                    slidingLink.slide = True
 
             if event.type == pygame.KEYUP:
                 if event.unicode == "w":
@@ -244,10 +243,14 @@ class gameState():
         screen.blit(background, (0, 0)) # coordinates x1 y1
         screen.blit(trainObs, (-self.trainX, self.trainY))
         screen.blit(jumpObs, (-self.jumpX, self.jumpY))
+        linkSlides.draw(screen) ####
         screen.blit(slideObs, (-self.slideX, self.slideY))
 
         linkRun.draw(screen)
-        linkRun.update(pygame.key.get_pressed(), 140, 70)
+        linkRun.update(140, 70)
+
+        slidingLink.update()
+
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
 
@@ -297,8 +300,9 @@ runningLink = Running(width/2, height - 100)
 linkRun.add(runningLink) # add the sprites at this position
 
 # sliding sprite pics
-# linkSlides = pygame.sprite.GroupSingle()
-# sliding = Slide()
+linkSlides = pygame.sprite.GroupSingle()
+slidingLink = Slide(width/2, height - 100)
+linkSlides.add(linkSlides)
 
 # main loop
 running = True
