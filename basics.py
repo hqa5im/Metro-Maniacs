@@ -41,11 +41,10 @@ class Running(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(midbottom = (self.x, self.y))
 
         # other variables
-        self.pressed = False
+        self.moveLeft = False
+        self.moveRight = False
         self.jump = False
-        self.jumpCount = 0
-        self.slide = False
-        self.slideCount = 0
+        self.jumpDown = False
 
     # controls the movement of the sprite 
     # such as changing of frames 
@@ -56,67 +55,48 @@ class Running(pygame.sprite.Sprite):
             self.currentSprite = 0
         self.image = self.sprite[self.currentSprite]
 
-        # change number of pixel moved in one key press
-        if key[pygame.K_a] and self.rect[0] - posX >= 0:
-            self.pressed = True
+        if self.moveLeft and self.rect[0] - posX >= 0:
             pygame.Rect.move_ip(self.rect, -posX, 0)
-        if key[pygame.K_d] and self.rect[0] + posX <= 350:
-            self.pressed = True
+            self.moveLeft = False
+
+        if self.moveRight and self.rect[0] + posX <= 350:
             pygame.Rect.move_ip(self.rect, posX, 0)
+            self.moveRight = False
 
-        if key[pygame.K_w] and self.jumpCount < 2:
-            self.pressed = True
-            self.jump = True
-            self.jumpCount += 1
-            # print(self.jumpCount)
-            pygame.Rect.move_ip(self.rect, 0, -posY) ## to jump
-        elif self.jumpCount >= 2:
+        if self.jump:
+            pygame.Rect.move_ip(self.rect, 0, -posY)
             self.jump = False
-            self.jumpCount = 0
-            pygame.Rect.move_ip(self.rect, 0, 2*posY) ## doesnt go back down
+        
+        if self.jumpDown:
+            pygame.Rect.move_ip(self.rect, 0, posY)
+            self.jumpDown = False
 
+# for single sliding sprite
+class Slide(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__()
+        self.x = x
+        self.y = y
+
+        # other variables
+        self.slide = False
+
+        self.sliding = pygame.image.load("linkSlide.png")
+        self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
+
+    def update2(self, key):
+        # key = pygame.key.get_pressed()
         if key[pygame.K_s]:
             self.pressed = True
             self.slide = True
             self.slideCount += 1
             # make character slide and change sprite being used
-
-        if pygame.key.get_pressed()[0] == False:
-            self.pressed = False
-
-# for single sliding sprite
-# class Slide(pygame.sprite.Sprite):
-    # def __init__(self, x, y):
-    #     super().__init__()
-    #     self.x = x
-    #     self.y = y
-
-    #     # other variables
-    #     self.slide = False
-    #     self.slideCount = 0
-
-    #     self.sliding = pygame.image.load("linkSlide.png")
-    #     self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
-
-    # def update(self, key):
-
-    #     # key = pygame.key.get_pressed()
-
-    #     if key[pygame.K_s]:
-    #         self.pressed = True
-    #         self.slide = True
-    #         self.slideCount += 1
-    #         # make character slide and change sprite being used
-
-    #     if pygame.key.get_pressed()[0] == False:
-    #         self.pressed = False
-
-    #     pass
+        pass
+    pass
 
 class gameState():
     def __init__(self):
         self.state = "start"
-        # self.backgroundMusic = pygame.mixer.Sound("background.mp3")
         # train variables
         trainXChoices = [50, -90, -220]
         self.trainXChoices = [50, -90, -220]
@@ -214,6 +194,23 @@ class gameState():
                 pygame.quit()
                 exit()
 
+            if event.type == pygame.KEYDOWN:
+                if event.unicode == "a":
+                    runningLink.moveLeft = True
+
+                if event.unicode == "d":
+                    runningLink.moveRight = True
+
+                if event.unicode == "w":
+                    runningLink.jump = True
+
+                if event.unicode == "s":
+                    runningLink.slide = True
+
+            if event.type == pygame.KEYUP:
+                if event.unicode == "w":
+                    runningLink.jumpDown = True
+
         # collide.rect only takes in rect
         # to prevent overlapping
         # if pygame.Rect.colliderect(self.jumpRect, self.trainRect):
@@ -250,7 +247,7 @@ class gameState():
         screen.blit(slideObs, (-self.slideX, self.slideY))
 
         linkRun.draw(screen)
-        linkRun.update(pygame.key.get_pressed(), 70, 50)
+        linkRun.update(pygame.key.get_pressed(), 140, 70)
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
 
@@ -296,8 +293,8 @@ slideObs = pygame.transform.scale(slideObs, (150, 120))
 
 # running sprite pics
 linkRun = pygame.sprite.Group()
-running = Running(width/2, height - 100)
-linkRun.add(running) # add the sprites at this position
+runningLink = Running(width/2, height - 100)
+linkRun.add(runningLink) # add the sprites at this position
 
 # sliding sprite pics
 # linkSlides = pygame.sprite.GroupSingle()
