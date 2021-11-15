@@ -83,14 +83,26 @@ class Slide(pygame.sprite.Sprite):
 
         # other variables
         self.slide = False
+        self.onRight = False
+        self.onLeft = False
 
-    def update(self):
-        if self.slide:
-            self.sliding
+    def update(self, posX):
+        if self.slide and self.onLeft == False and self.onRight == False:
             # remove old sprite
-            # add new sprite
+            # maybe make a list of those so stays longer
+            screen.blit(self.sliding, (self.rect[0], self.rect[1]))
             self.slide = False
 
+        elif self.slide == True and self.onRight == True:
+            screen.blit(self.sliding, (self.rect[0] + posX, self.rect[1]))
+            self.slide = False
+            self.onRight = False
+            self.onLeft = False
+        elif self.slide == True and self.onLeft == True:
+            screen.blit(self.sliding, (self.rect[0] - posX, self.rect[1]))
+            self.slide = False
+            self.onLeft = False
+            self.onRight = False
 
 class gameState():
     def __init__(self):
@@ -138,6 +150,9 @@ class gameState():
         self.rectHard = self.hardButton.get_rect(topleft = ((170, 664)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
+
+    def collision(self):
+        pass
 
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -195,9 +210,13 @@ class gameState():
             if event.type == pygame.KEYDOWN:
                 if event.unicode == "a":
                     runningLink.moveLeft = True
+                    slidingLink.onLeft = True
+                    slidingLink.onRight = False
 
                 if event.unicode == "d":
                     runningLink.moveRight = True
+                    slidingLink.onRight = True
+                    slidingLink.onLeft = False
 
                 if event.unicode == "w":
                     runningLink.jump = True
@@ -211,13 +230,13 @@ class gameState():
                     runningLink.jumpDown = True
 
         # collide.rect only takes in rect
-        # to prevent overlapping
-        # if pygame.Rect.colliderect(self.jumpRect, self.trainRect):
-        #     self.jumpX = random.choice(self.jumpXChoices)
+        if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
+            pygame.Rect.colliderect(self.slideRect, self.jumpRect):
+            self.jumpX = random.choice(self.jumpXChoices)
 
-        # if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
-        #     pygame.Rect.colliderect(self.slideRect, self.jumpRect):
-        #     self.slideX = random.choice(self.slideXChoices)
+        if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
+            pygame.Rect.colliderect(self.slideRect, self.jumpRect):
+            self.slideX = random.choice(self.slideXChoices)
         
         if self.trainY < 750:
             self.trainY += 20
@@ -230,7 +249,7 @@ class gameState():
             self.jumpY += 20
         else:
             # spawn jumps in random location
-            self.jumpY = -400
+            self.jumpY = -600
             self.jumpX = random.choice(self.jumpXChoices)
 
         if self.slideY < 750:
@@ -243,13 +262,12 @@ class gameState():
         screen.blit(background, (0, 0)) # coordinates x1 y1
         screen.blit(trainObs, (-self.trainX, self.trainY))
         screen.blit(jumpObs, (-self.jumpX, self.jumpY))
-        linkSlides.draw(screen) ####
-        screen.blit(slideObs, (-self.slideX, self.slideY))
-
+        linkSlides.draw(screen)
         linkRun.draw(screen)
+        screen.blit(slideObs, (-self.slideX, self.slideY))
         linkRun.update(140, 70)
 
-        slidingLink.update()
+        slidingLink.update(140)
 
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
