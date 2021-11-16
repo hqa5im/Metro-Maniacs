@@ -4,8 +4,10 @@ import os
 import time
 from sys import exit
 
+from pygame import rect
+
 # Assets: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
-# basic loop and intial sprite template: clearcode
+# basic loop and intial sprite template: https://youtu.be/MYaxPa_eZS0
 # Background: https://htmlcolorcodes.com/colors/purple/
 # background music : https://www.zapsplat.com/music/
 #                       game-music-action-faced-paced-euro-style-house-rave
@@ -39,6 +41,7 @@ class Running(pygame.sprite.Sprite):
 
         # starting position
         self.rect = self.image.get_rect(midbottom = (self.x, self.y))
+        print(self.rect)
 
         # other variables
         self.moveLeft = False
@@ -71,6 +74,7 @@ class Running(pygame.sprite.Sprite):
             pygame.Rect.move_ip(self.rect, 0, posY)
             self.jumpDown = False
 
+    
 # for single sliding sprite
 class Slide(pygame.sprite.Sprite):
     def __init__(self, x, y):
@@ -80,6 +84,7 @@ class Slide(pygame.sprite.Sprite):
 
         self.sliding = pygame.image.load("linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
+        # print(self.rect)
 
         # other variables
         self.slide = False
@@ -89,7 +94,7 @@ class Slide(pygame.sprite.Sprite):
     def update(self, posX):
         if self.slide and self.onLeft == False and self.onRight == False:
             # remove old sprite
-            # maybe make a list of those so stays longer
+            # use a counter to make longer
             screen.blit(self.sliding, (self.rect[0], self.rect[1]))
             self.slide = False
 
@@ -115,6 +120,7 @@ class gameState():
         trainObs = pygame.image.load("obstacles/train.png")
         self.trainObs = pygame.transform.scale(trainObs, (320, 650))
         self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY)) ######
+        print(self.trainRect)
 
         # jump obstacles variables
         # make a jumpY in a list with the second obstacle 
@@ -125,14 +131,14 @@ class gameState():
         self.jumpY = -600
         jumpObs = pygame.image.load("obstacles/jumpObs.png")
         self.jumpObs = pygame.transform.scale(jumpObs, (150, 120))
-        self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY)) ######
+        self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
 
         # slide obstacel variables
         slideXChoices = [-40, -170, -315]
         self.slideXChoices = [-40, -170, -315]
         self.slideX = random.choice(slideXChoices)
         self.slideY = -400
-        slideObs = pygame.image.load("obstacles/slideObs.png") #####work on this
+        slideObs = pygame.image.load("obstacles/slideObs.png")
         self.slideObs = pygame.transform.scale(slideObs, (150, 120))
         self.slideRect = self.slideObs.get_rect(topleft = (self.slideX, self.slideY))
 
@@ -151,8 +157,38 @@ class gameState():
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
 
-    def collision(self):
-        pass
+        # playerRect
+        self.x = width/2
+        self.y = height - 100
+        self.sliding = pygame.image.load("linkSlide.png")
+        self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
+
+    def scoring(self):
+        global score, gameSpeed
+        # print(score, gameSpeed)
+        score += 1
+        if score % 100 == 0:
+            gameSpeed += 5
+
+        text = pygame.font.Font.render(pygame.font.SysFont("arial", 32),
+         "Score: {score}", True, (0, 0, 0))
+        screen.blit(text, (0, 0))
+
+
+    def collision(self, posX):
+        # train collisions while running
+        # playerMidRect = self.rect
+        playerLeftRect = (self.rect[0] + posX, 559, self.rect[1], 141) 
+        # playerRightRect = (self.rect[0] - posX , 559, self.rect[1], 141)
+
+        # if self.trainRect.colliderect(playerMidRect):
+        #     print("collided!")
+        # if self.trainRect.colliderect(playerLeftRect) and slidingLink.slide != True: ##WORKS
+        #     self.state = "over"
+            # print("left collide!")
+        # if self.trainRect.colliderect(playerRightRect):
+        #     print("right collide!")
+
 
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -197,6 +233,8 @@ class gameState():
                 exit()
 
         screen.blit(gameBackground, (0, 0))
+        pygame.display.update()
+        pygame.display.flip()
         # need to add restart button
         # need to add score
         # pass
@@ -222,12 +260,14 @@ class gameState():
                     runningLink.jump = True
 
                 if event.unicode == "s":
-                    print("sliding!")
                     slidingLink.slide = True
 
             if event.type == pygame.KEYUP:
                 if event.unicode == "w":
                     runningLink.jumpDown = True
+
+        # if collide with player
+        self.collision(140)
 
         # collide.rect only takes in rect
         if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
@@ -239,26 +279,30 @@ class gameState():
             self.slideX = random.choice(self.slideXChoices)
         
         if self.trainY < 750:
-            self.trainY += 20
+            self.trainY += 20 + gameSpeed
+            self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY))
         else:
             # spawn train in random location
             self.trainY = -600
             self.trainX = random.choice(self.trainXChoices)
 
         if self.jumpY < 750:
-            self.jumpY += 20
+            self.jumpY += 20 + gameSpeed
+            self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
         else:
             # spawn jumps in random location
             self.jumpY = -600
             self.jumpX = random.choice(self.jumpXChoices)
 
         if self.slideY < 750:
-            self.slideY += 20
+            self.slideY += 20 + gameSpeed
+            self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
         else:
             # spawn slides in random location
             self.slideY = -750
             self.slideX = random.choice(self.slideXChoices)
 
+        self.scoring()
         screen.blit(background, (0, 0)) # coordinates x1 y1
         screen.blit(trainObs, (-self.trainX, self.trainY))
         screen.blit(jumpObs, (-self.jumpX, self.jumpY))
@@ -278,11 +322,13 @@ class gameState():
         if self.state == "gameState":
             self.game()
         if self.state == "over":
-            self.gameOverPage
+            self.gameOverPage()
 
 # general setup
 width = 500
 height = 800
+score = 0
+gameSpeed = 0
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
 pygame.display.set_caption("Metro Maniacs")
