@@ -195,6 +195,18 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 50))
 
+    def scoringHard(self):
+        global score, gameSpeed
+        # print(score, gameSpeed)
+        score += 1
+        if score % 200 == 0 and gameState == "startHard":
+            gameSpeed += 10
+
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+         f"Score: {score}", True, (0, 0, 0))
+        screen.blit(text, (width - 150, 50))
+
+
     def updateScores(self):
         f = open('scores.txt','r')
         file = f.readlines()
@@ -287,8 +299,6 @@ class gameState():
         pygame.display.update()
         pygame.display.flip()
         # need to add restart button
-        # need to add score
-        # pass
 
     def game(self):
         for event in pygame.event.get():
@@ -437,10 +447,12 @@ linkSlides = pygame.sprite.GroupSingle()
 slidingLink = Slide(width/2, height - 100)
 linkSlides.add(linkSlides)
 
+# player
+
+
 # main loop
 running = True
 while running:
     gameState1.stateControl()
-    # gameState1.gameOverPage()
     clock.tick(15)
 
