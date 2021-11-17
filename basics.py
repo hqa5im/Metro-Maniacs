@@ -1,10 +1,6 @@
 import pygame
 import random
-import os
-import time
-from sys import exit, get_asyncgen_hooks
-
-from pygame import rect
+from sys import exit
 
 # Assets: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
 # coin asset: https://totuslotus.itch.io/pixel-coins
@@ -84,6 +80,7 @@ class Slide(pygame.sprite.Sprite):
         super().__init__()
         self.x = x
         self.y = y
+
         self.i = 0
 
         self.sliding = pygame.image.load("linkSlide.png")
@@ -91,26 +88,14 @@ class Slide(pygame.sprite.Sprite):
 
         # other variables
         self.slide = False
-        self.onRight = False
-        self.onLeft = False
 
-    def update(self, posX):
-        if self.slide and self.onLeft == False and self.onRight == False:
-            # remove old sprite
-            # use a counter to make longer
-            screen.blit(self.sliding, (self.rect[0], self.rect[1]))
+    def update(self):
+        if self.slide == True and self.i < 10:
+            screen.blit(self.sliding, (rectRun[0], rectRun[1]))
+            self.i += 1
+        else:
+            self.i = 0
             self.slide = False
-
-        elif self.slide == True and self.onRight == True:
-            screen.blit(self.sliding, (self.rect[0] + posX, self.rect[1]))
-            self.slide = False
-            self.onRight = False
-            self.onLeft = False
-        elif self.slide == True and self.onLeft == True:
-            screen.blit(self.sliding, (self.rect[0] - posX, self.rect[1]))
-            self.slide = False
-            self.onLeft = False
-            self.onRight = False
 
 class Coins(pygame.sprite.Sprite):
     def __init__(self, coinImg):
@@ -195,18 +180,6 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 50))
 
-    def scoringHard(self):
-        global score, gameSpeed
-        # print(score, gameSpeed)
-        score += 1
-        if score % 200 == 0 and gameState == "startHard":
-            gameSpeed += 10
-
-        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
-         f"Score: {score}", True, (0, 0, 0))
-        screen.blit(text, (width - 150, 50))
-
-
     def updateScores(self):
         f = open('scores.txt','r')
         file = f.readlines()
@@ -222,8 +195,8 @@ class gameState():
     # def totalCoins(self):
     #     global coins
     #     if self.coinRect.colliderect(rectRun): # remove sprite
-    #         coins += coins//8
     #         # pygame.sprite.Sprite.remove(self.coin)
+            # coins += 1
     #         print(coins)
 
     def collision(self):
@@ -231,7 +204,7 @@ class gameState():
         # global coins
         # running sprite
         if self.trainRect.colliderect(rectRun):
-            print("collided!")
+            # print("collided!")
             self.state = "over"
 
         # sliding sprite
@@ -241,24 +214,24 @@ class gameState():
         
         # jump sprite
         if self.jumpRect.colliderect(rectRun) and self.collideJump != True:
-            print("didn't jump")
+            # print("didn't jump")
             self.state = "over"
 
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
-                self.state = "gameState"
+                self.state = "gameStateEasy"
                 self.clickSound.play()
         if self.rectNormal.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
-                self.state = "gameState"
+                self.state = "gameStateNormal"
                 self.clickSound.play()
         if self.rectHard.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
-                self.state = "gameState"
+                self.state = "gameStateHard"
                 self.clickSound.play()
 
         if pygame.mouse.get_pressed()[0] == False:
@@ -280,7 +253,7 @@ class gameState():
         pygame.display.update()
         pygame.display.flip()
 
-    def gameOverPage(self):
+    def gameOverPage(self): ##FOR EASY VERSION
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -298,9 +271,9 @@ class gameState():
         screen.blit(highscore, (width/2- 100, height/2 + 200))
         pygame.display.update()
         pygame.display.flip()
-        # need to add restart button
+        # need to add restart button - takes tom enu page
 
-    def game(self):
+    def gameEasy(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -309,13 +282,9 @@ class gameState():
             if event.type == pygame.KEYDOWN:
                 if event.unicode == "a":
                     runningLink.moveLeft = True
-                    slidingLink.onLeft = True
-                    slidingLink.onRight = False
 
                 if event.unicode == "d":
                     runningLink.moveRight = True
-                    slidingLink.onRight = True
-                    slidingLink.onLeft = False
 
                 if event.unicode == "w":
                     runningLink.jump = True
@@ -370,7 +339,7 @@ class gameState():
 
         if self.slideY < 750:
             self.slideY += 20 + gameSpeed
-            self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
+            self.slideRect = self.sliding.get_rect(topleft = (self.slideX + 5, self.slideY - 30))
         else:
             # spawn slides in random location
             self.slideY = -750
@@ -384,11 +353,11 @@ class gameState():
         screen.blit(jumpObs, (self.jumpX, self.jumpY))
         linkSlides.draw(screen)
         linkRun.draw(screen)
-        screen.blit(slideObs, (self.slideX, self.slideY)) # won't collide with link
+        screen.blit(slideObs, (self.slideX, self.slideY))
         linkRun.update(140, 70)
-        slidingLink.update(140)
+        slidingLink.update()
 
-        # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)
+        pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  #??????????
         pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 50))
         self.scoring()
         pygame.display.update()
@@ -397,8 +366,12 @@ class gameState():
     def stateControl(self):
         if self.state == "start":
             self.startPage()
-        if self.state == "gameState":
-            self.game()
+        if self.state == "gameStateEasy":
+            self.gameEasy()
+        if self.state == "gameStateNormal": ##make
+            self.gameNormal()
+        if self.state == "gameStateHard": ##make
+            self.gameHard()
         if self.state == "over":
             self.gameOverPage()
 
