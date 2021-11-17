@@ -14,6 +14,7 @@ from pygame import rect
 #                       -pumping-with-electronic-wobble-bass-synth-elements/
 # click sound: https://www.zapsplat.com/music/active-studio-speaker-power-switch-click-5/
 # coin sound: https://www.zapsplat.com/music/retro-8-bit-game-collect-point-00/
+# resizing pixels of images: https://lospec.com/pixel-art-scaler/
 
 pygame.init()
 
@@ -41,8 +42,7 @@ class Running(pygame.sprite.Sprite):
 
         # starting position
         self.rect = self.image.get_rect(midbottom = (self.x, self.y))
-        global rectRun, maskRun
-        maskRun = pygame.mask.from_surface(self.image)
+        global rectRun
         rectRun = self.rect
 
         # other variables
@@ -133,8 +133,8 @@ class gameState():
         self.jumpY = -600
         self.jumpObs = pygame.image.load("obstacles/jumpObs.png")
 
-        self.jumpMask = pygame.mask.from_surface(self.jumpObs)
         self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
+        self.collideJump = False
 
         # slide obstacel variables
         slideXChoices = [40, 170, 315]
@@ -143,8 +143,8 @@ class gameState():
         self.slideY = -400
         self.slideObs = pygame.image.load("obstacles/slideObs.png")
 
-        self.slideMask = pygame.mask.from_surface(self.slideObs)
         self.slideRect = self.slideObs.get_rect(topleft = (self.slideX, self.slideY))
+        self.collideSlide = False
 
         # button variables
         self.easyButton = pygame.image.load("buttons/easy.png")
@@ -180,8 +180,19 @@ class gameState():
 
 
     def collision(self, posX):
-        # train collisions while running
-        pass
+        # running sprite
+        if self.trainRect.colliderect(rectRun):
+            print("collided!")
+
+        # sliding sprite
+        if self.slideRect.colliderect(rectRun) and self.collideSlide != True:
+            print("didnt slide!")
+        
+        # jump sprite
+        if self.jumpRect.colliderect(rectRun) and self.collideJump != True:
+            print("didn't jump")
+            
+        # self.collideJump = False
 
 
     def button(self):
@@ -252,13 +263,20 @@ class gameState():
 
                 if event.unicode == "w":
                     runningLink.jump = True
+                    self.collideJump = True
 
                 if event.unicode == "s":
                     slidingLink.slide = True
+                    self.collideSlide = True
 
             if event.type == pygame.KEYUP:
                 if event.unicode == "w":
                     runningLink.jumpDown = True
+                # hold key to continue jumping
+                if event.unicode == "w":
+                    self.collideJump = False
+                if event.unicode == "s":
+                    self.collideSlide = False
 
         # if collide with player
         self.collision(140)
@@ -301,12 +319,11 @@ class gameState():
         screen.blit(jumpObs, (self.jumpX, self.jumpY))
         linkSlides.draw(screen)
         linkRun.draw(screen)
-        screen.blit(slideObs, (self.slideX, self.slideY))
+        screen.blit(slideObs, (self.slideX, self.slideY)) # won't collide with link
         linkRun.update(140, 70)
         slidingLink.update(140)
 
-        # pygame.draw.rect(screen, (255, 0, 0), rectRun)
-        pygame.draw.rect(screen, (0, 255, 0), self.trainRect)
+        # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)
         self.scoring()
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
