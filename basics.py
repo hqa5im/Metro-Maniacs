@@ -83,10 +83,10 @@ class Slide(pygame.sprite.Sprite):
         super().__init__()
         self.x = x
         self.y = y
+        self.i = 0
 
         self.sliding = pygame.image.load("linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
-        # print(self.rect)
 
         # other variables
         self.slide = False
@@ -122,13 +122,12 @@ class gameState():
         self.trainObs = pygame.image.load("obstacles/train.png")
 
         self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY)) ######
-        # print(self.trainRect)
 
         # jump obstacles variables
         # make a jumpY in a list with the second obstacle 
         # just a few pixels behind it
-        jumpXChoices = [28, 165, 305]
-        self.jumpXChoices = [28, 175, 315]
+        jumpXChoices = [60, 195, 350]
+        self.jumpXChoices = [60, 195, 350]
         self.jumpX = random.choice(jumpXChoices)
         self.jumpY = -600
         self.jumpObs = pygame.image.load("obstacles/jumpObs.png")
@@ -137,8 +136,8 @@ class gameState():
         self.collideJump = False
 
         # slide obstacel variables
-        slideXChoices = [40, 170, 315]
-        self.slideXChoices = [40, 170, 315]
+        slideXChoices = [43, 180, 318]
+        self.slideXChoices = [43, 180, 318]
         self.slideX = random.choice(slideXChoices)
         self.slideY = -400
         self.slideObs = pygame.image.load("obstacles/slideObs.png")
@@ -179,7 +178,7 @@ class gameState():
         screen.blit(text, (width - 150, 50))
 
 
-    def collision(self, posX):
+    def collision(self):
         # running sprite
         if self.trainRect.colliderect(rectRun):
             print("collided!")
@@ -279,7 +278,7 @@ class gameState():
                     self.collideSlide = False
 
         # if collide with player
-        self.collision(140)
+        self.collision()
 
         # collide.rect only takes in rect
         if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
