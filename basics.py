@@ -420,7 +420,13 @@ linkSlides = pygame.sprite.GroupSingle()
 slidingLink = Slide(width/2, height - 100)
 linkSlides.add(linkSlides)
 
-# player
+# players
+# all players will have 10 sprites
+
+# if button "link" is chosen then
+# name = link ----> linkRunningSprites/{name}1.png
+# if button "sonic" is chosen then
+# name = sonic ----> linkRunningSprites/{sonic}1.png
 
 
 # main loop
