@@ -41,7 +41,9 @@ class Running(pygame.sprite.Sprite):
 
         # starting position
         self.rect = self.image.get_rect(midbottom = (self.x, self.y))
-        print(self.rect)
+        global rectRun, maskRun
+        maskRun = pygame.mask.from_surface(self.image)
+        rectRun = self.rect
 
         # other variables
         self.moveLeft = False
@@ -113,33 +115,35 @@ class gameState():
     def __init__(self):
         self.state = "start"
         # train variables
-        trainXChoices = [50, -90, -220]
-        self.trainXChoices = [50, -90, -220]
+        trainXChoices = [30, 185, 320]
+        self.trainXChoices = [30, 185, 320]
         self.trainX = random.choice(trainXChoices)
         self.trainY = -600
-        trainObs = pygame.image.load("obstacles/train.png")
-        self.trainObs = pygame.transform.scale(trainObs, (320, 650))
+        self.trainObs = pygame.image.load("obstacles/train.png")
+
         self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY)) ######
-        print(self.trainRect)
+        # print(self.trainRect)
 
         # jump obstacles variables
         # make a jumpY in a list with the second obstacle 
         # just a few pixels behind it
-        jumpXChoices = [-30, -165, -305]
-        self.jumpXChoices = [-30, -165, -305]
+        jumpXChoices = [28, 165, 305]
+        self.jumpXChoices = [28, 175, 315]
         self.jumpX = random.choice(jumpXChoices)
         self.jumpY = -600
-        jumpObs = pygame.image.load("obstacles/jumpObs.png")
-        self.jumpObs = pygame.transform.scale(jumpObs, (150, 120))
+        self.jumpObs = pygame.image.load("obstacles/jumpObs.png")
+
+        self.jumpMask = pygame.mask.from_surface(self.jumpObs)
         self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
 
         # slide obstacel variables
-        slideXChoices = [-40, -170, -315]
-        self.slideXChoices = [-40, -170, -315]
+        slideXChoices = [40, 170, 315]
+        self.slideXChoices = [40, 170, 315]
         self.slideX = random.choice(slideXChoices)
         self.slideY = -400
-        slideObs = pygame.image.load("obstacles/slideObs.png")
-        self.slideObs = pygame.transform.scale(slideObs, (150, 120))
+        self.slideObs = pygame.image.load("obstacles/slideObs.png")
+
+        self.slideMask = pygame.mask.from_surface(self.slideObs)
         self.slideRect = self.slideObs.get_rect(topleft = (self.slideX, self.slideY))
 
         # button variables
@@ -170,24 +174,14 @@ class gameState():
         if score % 100 == 0:
             gameSpeed += 5
 
-        text = pygame.font.Font.render(pygame.font.SysFont("arial", 32),
-         "Score: {score}", True, (0, 0, 0))
-        screen.blit(text, (0, 0))
+        text = pygame.font.Font.render(pygame.font.SysFont("arial", 21),
+         f"Score: {score}", True, (0, 0, 0))
+        screen.blit(text, (width - 150, 50))
 
 
     def collision(self, posX):
         # train collisions while running
-        # playerMidRect = self.rect
-        playerLeftRect = (self.rect[0] + posX, 559, self.rect[1], 141) 
-        # playerRightRect = (self.rect[0] - posX , 559, self.rect[1], 141)
-
-        # if self.trainRect.colliderect(playerMidRect):
-        #     print("collided!")
-        # if self.trainRect.colliderect(playerLeftRect) and slidingLink.slide != True: ##WORKS
-        #     self.state = "over"
-            # print("left collide!")
-        # if self.trainRect.colliderect(playerRightRect):
-        #     print("right collide!")
+        pass
 
 
     def button(self):
@@ -280,7 +274,7 @@ class gameState():
         
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
-            self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY))
+            self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY - 10))
         else:
             # spawn train in random location
             self.trainY = -600
@@ -302,17 +296,18 @@ class gameState():
             self.slideY = -750
             self.slideX = random.choice(self.slideXChoices)
 
-        self.scoring()
         screen.blit(background, (0, 0)) # coordinates x1 y1
-        screen.blit(trainObs, (-self.trainX, self.trainY))
-        screen.blit(jumpObs, (-self.jumpX, self.jumpY))
+        screen.blit(trainObs, (self.trainX, self.trainY))
+        screen.blit(jumpObs, (self.jumpX, self.jumpY))
         linkSlides.draw(screen)
         linkRun.draw(screen)
-        screen.blit(slideObs, (-self.slideX, self.slideY))
+        screen.blit(slideObs, (self.slideX, self.slideY))
         linkRun.update(140, 70)
-
         slidingLink.update(140)
 
+        # pygame.draw.rect(screen, (255, 0, 0), rectRun)
+        pygame.draw.rect(screen, (0, 255, 0), self.trainRect)
+        self.scoring()
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
 
@@ -348,15 +343,12 @@ gameBackground.fill((255, 255, 102))
 
 # train variables
 trainObs = pygame.image.load("obstacles/train.png")
-trainObs = pygame.transform.scale(trainObs, (320, 650))
 
 # jump variables
 jumpObs = pygame.image.load("obstacles/jumpObs.png")
-jumpObs = pygame.transform.scale(jumpObs, (150, 120))
 
 # slide variables
-slideObs = pygame.image.load("obstacles/slideObs.png") #####work on this
-slideObs = pygame.transform.scale(slideObs, (150, 120))
+slideObs = pygame.image.load("obstacles/slideObs.png") 
 
 # running sprite pics
 linkRun = pygame.sprite.Group()
