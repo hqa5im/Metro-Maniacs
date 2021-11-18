@@ -1,3 +1,4 @@
+from os import name
 import pygame
 import random
 from sys import exit
@@ -17,23 +18,23 @@ pygame.init()
 
 # creating a class for sprites
 class Running(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, name):
         super().__init__()
-
         self.x = x
         self.y = y
+        print(name)
 
         self.sprite = []
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link1.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link2.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link3.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link4.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link5.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link6.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link7.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link8.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link9.png"))
-        self.sprite.append(pygame.image.load("linkRunningSprites/Link10.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}1.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}2.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}3.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}4.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}5.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}6.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}7.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}8.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}9.png"))
+        self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}10.png"))
         self.currentSprite = 0
         self.image = self.sprite[self.currentSprite]
 
@@ -106,6 +107,7 @@ class Coins(pygame.sprite.Sprite):
 
 class gameState():
     def __init__(self):
+        
         self.state = "start"
         # train variables
         trainXChoices = [30, 185, 320]
@@ -139,16 +141,21 @@ class gameState():
         self.easyButton = pygame.image.load("buttons/easy.png")
         self.normalButton = pygame.image.load("buttons/normal.png")
         self.hardButton = pygame.image.load("buttons/hard.png")
-
-        self.easyButton2 = pygame.image.load("buttons/easy2.png")
-        self.normalButton2 = pygame.image.load("buttons/normal2.png")
-        self.hardButton2 = pygame.image.load("buttons/hard2.png")
+        self.shopButton = pygame.image.load("buttons/shop.png")
 
         self.rectEasy = self.easyButton.get_rect(topleft = (170, 469))
         self.rectNormal = self.normalButton.get_rect(topleft = ((170, 564)))
         self.rectHard = self.hardButton.get_rect(topleft = ((170, 664)))
+        self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))######
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
+
+        # shop buttons
+        self.linkButton = pygame.image.load("buttons/Link.png")
+        self.sonicButton = pygame.image.load("buttons/Sonic.png")
+
+        self.rectLink = self.linkButton.get_rect(topleft = (153, 452))
+        self.rectSonic = self.sonicButton.get_rect(topleft = (153, 555))
 
         # playerRect
         self.x = width/2
@@ -233,6 +240,11 @@ class gameState():
                 self.click = True
                 self.state = "gameStateHard"
                 self.clickSound.play()
+        if self.rectShop.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                self.state = "shop"
+                self.clickSound.play()
 
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
@@ -250,8 +262,43 @@ class gameState():
         screen.blit(self.easyButton, (150, 450))
         screen.blit(self.normalButton, (155, 550))
         screen.blit(self.hardButton, (157, 650))
+        screen.blit(self.shopButton, (170, 750))
         pygame.display.update()
         pygame.display.flip()
+
+    def shop(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            self.shopButtons()
+
+        screen.blit(gameBackground, (0, 0))
+        screen.blit(self.linkButton, (150, 450))
+        screen.blit(self.sonicButton, (150, 550))
+        pygame.display.update()
+        pygame.display.flip()
+
+    def shopButtons(self):
+        global name
+        if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                name = "Link"
+                print("link selected!")
+                self.state = "start"
+                self.clickSound.play()
+        if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                name = "sonic"
+                print("sonic selected!")
+                self.state = "start"
+                self.clickSound.play()
+        print(name)
+        if pygame.mouse.get_pressed()[0] == False:
+            self.click = False
+
 
     def gameOverPage(self): ##FOR EASY VERSION
         for event in pygame.event.get():
@@ -357,7 +404,7 @@ class gameState():
         linkRun.update(140, 70)
         slidingLink.update()
 
-        pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  #??????????
+        # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
         pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 50))
         self.scoring()
         pygame.display.update()
@@ -374,6 +421,8 @@ class gameState():
             self.gameHard()
         if self.state == "over":
             self.gameOverPage()
+        if self.state == "shop":
+            self.shop()
 
 # general setup
 width = 500
@@ -410,24 +459,18 @@ slideObs = pygame.image.load("obstacles/slideObs.png")
 coin = pygame.image.load("coin.png")
 coins = 0
 
+# players
+name = "Link"
+
 # running sprite pics
 linkRun = pygame.sprite.Group()
-runningLink = Running(width/2, height - 100)
+runningLink = Running(width/2, height - 100, name)
 linkRun.add(runningLink) # add the sprites at this position
 
 # sliding sprite pics
 linkSlides = pygame.sprite.GroupSingle()
 slidingLink = Slide(width/2, height - 100)
 linkSlides.add(linkSlides)
-
-# players
-# all players will have 10 sprites
-
-# if button "link" is chosen then
-# name = link ----> linkRunningSprites/{name}1.png
-# if button "sonic" is chosen then
-# name = sonic ----> linkRunningSprites/{sonic}1.png
-
 
 # main loop
 running = True
