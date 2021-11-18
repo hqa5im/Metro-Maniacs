@@ -13,6 +13,7 @@ from sys import exit
 # click sound: https://www.zapsplat.com/music/active-studio-speaker-power-switch-click-5/
 # coin sound: https://www.zapsplat.com/music/retro-8-bit-game-collect-point-00/
 # resizing pixels of images: https://lospec.com/pixel-art-scaler/
+# high score method: 
 
 pygame.init()
 
@@ -107,7 +108,12 @@ class Coins(pygame.sprite.Sprite):
 
 class gameState():
     def __init__(self):
-        
+        # player variables !!!!
+        self.name = "Link"
+        self.linkRun = pygame.sprite.Group()
+        self.runningLink = Running(width/2, height - 100, self.name)
+        self.linkRun.add(self.runningLink) # add the sprites at this position
+
         self.state = "start"
         # train variables
         trainXChoices = [30, 185, 320]
@@ -178,7 +184,6 @@ class gameState():
 
     def scoring(self):
         global score, gameSpeed
-        # print(score, gameSpeed)
         score += 1
         if score % 100 == 0 and gameState == "start":
             gameSpeed += 5
@@ -216,7 +221,7 @@ class gameState():
 
         # sliding sprite
         if self.slideRect.colliderect(rectRun) and self.collideSlide != True:
-            print("didnt slide!")
+            # print("didnt slide!")
             self.state = "over"
         
         # jump sprite
@@ -280,22 +285,26 @@ class gameState():
         pygame.display.flip()
 
     def shopButtons(self):
-        global name
         if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
-                name = "Link"
+                self.name = "Link"
+                self.linkRun = pygame.sprite.Group()
+                self.runningLink = Running(width/2, height - 100, self.name)
+                self.linkRun.add(self.runningLink) # add the sprites at this position
                 print("link selected!")
                 self.state = "start"
                 self.clickSound.play()
         if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
-                name = "sonic"
+                self.name = "sonic"
+                self.linkRun = pygame.sprite.Group()
+                self.runningLink = Running(width/2, height - 100, self.name)
+                self.linkRun.add(self.runningLink) # add the sprites at this position
                 print("sonic selected!")
                 self.state = "start"
                 self.clickSound.play()
-        print(name)
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
 
@@ -328,13 +337,13 @@ class gameState():
 
             if event.type == pygame.KEYDOWN:
                 if event.unicode == "a":
-                    runningLink.moveLeft = True
+                    self.runningLink.moveLeft = True
 
                 if event.unicode == "d":
-                    runningLink.moveRight = True
+                    self.runningLink.moveRight = True
 
                 if event.unicode == "w":
-                    runningLink.jump = True
+                    self.runningLink.jump = True
                     self.collideJump = True
 
                 if event.unicode == "s":
@@ -343,7 +352,7 @@ class gameState():
 
             if event.type == pygame.KEYUP:
                 if event.unicode == "w":
-                    runningLink.jumpDown = True
+                    self.runningLink.jumpDown = True
                 # hold key to continue jumping
                 if event.unicode == "w":
                     self.collideJump = False
@@ -399,9 +408,9 @@ class gameState():
         screen.blit(trainObs, (self.trainX, self.trainY))
         screen.blit(jumpObs, (self.jumpX, self.jumpY))
         linkSlides.draw(screen)
-        linkRun.draw(screen)
+        self.linkRun.draw(screen)
         screen.blit(slideObs, (self.slideX, self.slideY))
-        linkRun.update(140, 70)
+        self.linkRun.update(140, 70)
         slidingLink.update()
 
         # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
@@ -459,13 +468,10 @@ slideObs = pygame.image.load("obstacles/slideObs.png")
 coin = pygame.image.load("coin.png")
 coins = 0
 
-# players
-name = "Link"
-
 # running sprite pics
-linkRun = pygame.sprite.Group()
-runningLink = Running(width/2, height - 100, name)
-linkRun.add(runningLink) # add the sprites at this position
+# linkRun = pygame.sprite.Group()
+# runningLink = Running(width/2, height - 100, name)
+# linkRun.add(runningLink) # add the sprites at this position
 
 # sliding sprite pics
 linkSlides = pygame.sprite.GroupSingle()
