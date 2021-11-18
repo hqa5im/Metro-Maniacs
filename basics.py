@@ -23,7 +23,6 @@ class Running(pygame.sprite.Sprite):
         super().__init__()
         self.x = x
         self.y = y
-        print(name)
 
         self.sprite = []
         self.sprite.append(pygame.image.load(f"linkRunningSprites/{name}1.png"))
@@ -99,13 +98,6 @@ class Slide(pygame.sprite.Sprite):
             self.i = 0
             self.slide = False
 
-class Coins(pygame.sprite.Sprite):
-    def __init__(self, coinImg):
-        super().__init__()
-
-        pygame.sprite.Sprite.remove(coinImg)
-
-
 class gameState():
     def __init__(self):
         # player variables !!!!
@@ -116,9 +108,8 @@ class gameState():
 
         self.state = "start"
         # train variables
-        trainXChoices = [30, 185, 320]
         self.trainXChoices = [30, 185, 320]
-        self.trainX = random.choice(trainXChoices)
+        self.trainX = random.choice(self.trainXChoices)
         self.trainY = -600
         self.trainObs = pygame.image.load("obstacles/train.png")
         self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY))
@@ -126,18 +117,16 @@ class gameState():
         # jump obstacles variables
         # make a jumpY in a list with the second obstacle 
         # just a few pixels behind it
-        jumpXChoices = [60, 195, 350]
         self.jumpXChoices = [60, 195, 350]
-        self.jumpX = random.choice(jumpXChoices)
+        self.jumpX = random.choice(self.jumpXChoices)
         self.jumpY = -600
         self.jumpObs = pygame.image.load("obstacles/jumpObs.png")
         self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
         self.collideJump = False
 
         # slide obstacel variables
-        slideXChoices = [43, 180, 330]
         self.slideXChoices = [43, 180, 330]
-        self.slideX = random.choice(slideXChoices)
+        self.slideX = random.choice(self.slideXChoices)
         self.slideY = -400
         self.slideObs = pygame.image.load("obstacles/slideObs.png")
         self.slideRect = self.slideObs.get_rect(topleft = (self.slideX, self.slideY))
@@ -152,7 +141,7 @@ class gameState():
         self.rectEasy = self.easyButton.get_rect(topleft = (170, 469))
         self.rectNormal = self.normalButton.get_rect(topleft = ((170, 564)))
         self.rectHard = self.hardButton.get_rect(topleft = ((170, 664)))
-        self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))######
+        self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
 
@@ -169,18 +158,34 @@ class gameState():
         self.sliding = pygame.image.load("linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
-        # coin
-        coinXChoices = [80, 230, 370]
+        # coin 1
         self.coinXChoices = [80, 230, 370]
-        self.coinX = random.choice(coinXChoices)
-        self.coinY = 0
+        self.coinX = random.choice(self.coinXChoices)
+        self.coinY = random.randint(-300, 0)
         self.coin = pygame.image.load("coin.png")
-
         self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
 
-        global coin, coinRect
-        coin = self.coin
-        coinRect = self.coinRect
+        # coin 2
+        self.coin2XChoices = [80, 230, 370]
+        self.coin2X = random.choice(self.coin2XChoices)
+        self.coin2Y = random.randint(-300, 0)
+        self.coin2 = pygame.image.load("coin.png")
+        self.coin2Rect = self.coin2.get_rect(topleft = (self.coin2X, self.coin2Y))
+
+        # coin 3
+        self.coin3XChoices = [80, 230, 370]
+        self.coin3X = random.choice(self.coin3XChoices)
+        self.coin3Y = random.randint(-300, 0)
+        self.coin3 = pygame.image.load("coin.png")
+        self.coin3Rect = self.coin3.get_rect(topleft = (self.coin3X, self.coin3Y))
+
+        # coin 4
+        self.coin4XChoices = [80, 230, 370]
+        self.coin4X = random.choice(self.coin4XChoices)
+        self.coin4Y = random.randint(-300, 0)
+        self.coin4 = pygame.image.load("coin.png")
+        self.coin4Rect = self.coin3.get_rect(topleft = (self.coin4X, self.coin4Y))
+
 
     def scoring(self):
         global score, gameSpeed
@@ -204,31 +209,42 @@ class gameState():
             return score       
         return last
 
-    # def totalCoins(self):
-    #     global coins
-    #     if self.coinRect.colliderect(rectRun): # remove sprite
-    #         # pygame.sprite.Sprite.remove(self.coin)
-            # coins += 1
-    #         print(coins)
-
     def collision(self):
         global coins
-        # global coins
         # running sprite
         if self.trainRect.colliderect(rectRun):
-            # print("collided!")
             self.state = "over"
 
         # sliding sprite
         if self.slideRect.colliderect(rectRun) and self.collideSlide != True:
-            # print("didnt slide!")
             self.state = "over"
         
         # jump sprite
         if self.jumpRect.colliderect(rectRun) and self.collideJump != True:
-            # print("didn't jump")
             self.state = "over"
 
+        # coin collision
+        if self.coinRect.colliderect(rectRun):
+            self.coinY = random.randint(-300, 0)
+            self.coinX = random.choice(self.coinXChoices)
+            coins += 1
+
+        if self.coin2Rect.colliderect(rectRun):
+            self.coin2Y = random.randint(-300, 0)
+            self.coin2X = random.choice(self.coin2XChoices)
+            coins += 1
+
+        if self.coin3Rect.colliderect(rectRun):
+            self.coin3Y = random.randint(-300, 0)
+            self.coin3X = random.choice(self.coin3XChoices)
+            coins += 1
+
+        if self.coin4Rect.colliderect(rectRun):
+            self.coin4Y = random.randint(-300, 0)
+            self.coin4X = random.choice(self.coin4XChoices)
+            coins += 1
+
+        
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
@@ -375,7 +391,29 @@ class gameState():
             self.coinY += 20 + gameSpeed
             self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
         else:
-            self.coinY = 0
+            self.coinY = random.randint(-300, 0)
+            self.coinX = random.choice(self.coinXChoices)
+
+        if self.coin2Y < 750:
+            self.coin2Y += 20 + gameSpeed
+            self.coin2Rect = self.coin2.get_rect(topleft = (self.coin2X, self.coin2Y))
+        else:
+            self.coin2Y = random.randint(-300, 0)
+            self.coin2X = random.choice(self.coin2XChoices)
+
+        if self.coin3Y < 750:
+            self.coin3Y += 20 + gameSpeed
+            self.coin3Rect = self.coin3.get_rect(topleft = (self.coin3X, self.coin3Y))
+        else:
+            self.coin3Y = random.randint(-300, 0)
+            self.coin3X = random.choice(self.coin3XChoices)
+
+        if self.coin4Y < 750:
+            self.coin4Y += 20 + gameSpeed
+            self.coin4Rect = self.coin4.get_rect(topleft = (self.coin4X, self.coin4Y))
+        else:
+            self.coin4Y = random.randint(-300, 0)
+            self.coin4X = random.choice(self.coin4XChoices)
         
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
@@ -403,13 +441,17 @@ class gameState():
 
         screen.blit(background, (0, 0)) # coordinates x1 y1
 
-        screen.blit(coin, (self.coinX, self.coinY)) # temporary
+        screen.blit(self.trainObs, (self.trainX, self.trainY))
+        screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
 
-        screen.blit(trainObs, (self.trainX, self.trainY))
-        screen.blit(jumpObs, (self.jumpX, self.jumpY))
+        screen.blit(self.coin, (self.coinX, self.coinY))
+        screen.blit(self.coin, (self.coin2X, self.coin2Y))
+        screen.blit(self.coin, (self.coin3X, self.coin3Y))
+        screen.blit(self.coin, (self.coin4X, self.coin4Y))
+
         linkSlides.draw(screen)
         self.linkRun.draw(screen)
-        screen.blit(slideObs, (self.slideX, self.slideY))
+        screen.blit(self.slideObs, (self.slideX, self.slideY))
         self.linkRun.update(140, 70)
         slidingLink.update()
 
@@ -455,23 +497,8 @@ introText = pygame.image.load("metroManiacs.png")
 gameBackground = pygame.Surface((width, height))
 gameBackground.fill((255, 255, 102))
 
-# train variables
-trainObs = pygame.image.load("obstacles/train.png")
-
-# jump variables
-jumpObs = pygame.image.load("obstacles/jumpObs.png")
-
-# slide variables
-slideObs = pygame.image.load("obstacles/slideObs.png") 
-
 # coin variables
-coin = pygame.image.load("coin.png")
 coins = 0
-
-# running sprite pics
-# linkRun = pygame.sprite.Group()
-# runningLink = Running(width/2, height - 100, name)
-# linkRun.add(runningLink) # add the sprites at this position
 
 # sliding sprite pics
 linkSlides = pygame.sprite.GroupSingle()
