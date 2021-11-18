@@ -13,7 +13,8 @@ from sys import exit
 # click sound: https://www.zapsplat.com/music/active-studio-speaker-power-switch-click-5/
 # coin sound: https://www.zapsplat.com/music/retro-8-bit-game-collect-point-00/
 # resizing pixels of images: https://lospec.com/pixel-art-scaler/
-# high score method: 
+# high score method: https://www.techwithtim.net/tutorials/game
+#                   -development-with-python/pygame-tutorial/scoring-health-bars/
 
 pygame.init()
 
@@ -186,6 +187,8 @@ class gameState():
         self.coin4 = pygame.image.load("coin.png")
         self.coin4Rect = self.coin3.get_rect(topleft = (self.coin4X, self.coin4Y))
 
+        self.coinSound = pygame.mixer.Sound("coin.mp3")
+
 
     def scoring(self):
         global score, gameSpeed
@@ -197,6 +200,13 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 50))
 
+    def coinTotal(self):
+        global coins
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+         f"Coins: {coins}", True, (0, 0, 0))
+        screen.blit(text, (width - 150, 80))
+
+    # high score
     def updateScores(self):
         f = open('scores.txt','r')
         file = f.readlines()
@@ -204,6 +214,19 @@ class gameState():
         if last < int(score):
             f.close() 
             file = open('scores.txt', 'w') 
+            file.write(str(score)) 
+            file.close() 
+            return score       
+        return last
+
+    # sum of coins
+    def updateCoins(self):
+        f = open('coins.txt','r')
+        file = f.readlines()
+        last = int(file[0])
+        if last < int(score):
+            f.close() 
+            file = open('coins.txt', 'w') 
             file.write(str(score)) 
             file.close() 
             return score       
@@ -227,24 +250,27 @@ class gameState():
         if self.coinRect.colliderect(rectRun):
             self.coinY = random.randint(-300, 0)
             self.coinX = random.choice(self.coinXChoices)
+            self.coinSound.play()
             coins += 1
 
         if self.coin2Rect.colliderect(rectRun):
             self.coin2Y = random.randint(-300, 0)
             self.coin2X = random.choice(self.coin2XChoices)
+            self.coinSound.play()
             coins += 1
 
         if self.coin3Rect.colliderect(rectRun):
             self.coin3Y = random.randint(-300, 0)
             self.coin3X = random.choice(self.coin3XChoices)
+            self.coinSound.play()
             coins += 1
 
         if self.coin4Rect.colliderect(rectRun):
             self.coin4Y = random.randint(-300, 0)
             self.coin4X = random.choice(self.coin4XChoices)
+            self.coinSound.play()
             coins += 1
 
-        
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
@@ -456,8 +482,9 @@ class gameState():
         slidingLink.update()
 
         # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
-        pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 50))
+        pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 75))
         self.scoring()
+        self.coinTotal()
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
 
