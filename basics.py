@@ -85,7 +85,7 @@ class Slide(pygame.sprite.Sprite):
 
         self.i = 0
 
-        self.sliding = pygame.image.load("linkSlide.png")
+        self.sliding = pygame.image.load("slides/linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
         # other variables
@@ -108,12 +108,19 @@ class gameState():
         self.linkRun.add(self.runningLink) # add the sprites at this position
 
         self.state = "start"
-        # train variables
+        # train 1 variables
         self.trainXChoices = [30, 185, 320]
         self.trainX = random.choice(self.trainXChoices)
         self.trainY = -600
         self.trainObs = pygame.image.load("obstacles/train.png")
         self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY))
+
+        # train 2 variables - for hard mode
+        self.train2XChoices = [30, 185, 320]
+        self.train2X = random.choice(self.train2XChoices)
+        self.train2Y = random.randint(-1200, -600)
+        self.train2Obs = pygame.image.load("obstacles/train.png")
+        self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y))
 
         # jump obstacles variables
         # make a jumpY in a list with the second obstacle 
@@ -158,7 +165,7 @@ class gameState():
         # playerRect
         self.x = width/2
         self.y = height - 100
-        self.sliding = pygame.image.load("linkSlide.png")
+        self.sliding = pygame.image.load("slides/linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
         # coin 1
@@ -331,7 +338,6 @@ class gameState():
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
                 self.linkRun.add(self.runningLink) # add the sprites at this position
-                print("link selected!")
                 self.state = "start"
                 self.clickSound.play()
         if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -341,7 +347,6 @@ class gameState():
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
                 self.linkRun.add(self.runningLink) # add the sprites at this position
-                print("sonic selected!")
                 self.state = "start"
                 self.clickSound.play()
         if pygame.mouse.get_pressed()[0] == False:
@@ -375,9 +380,12 @@ class gameState():
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
-        # need to add restart button - takes tom enu page
+        # need to add restart button - takes to menu page
 
     def gameEasy(self):
+        pass
+
+    def game(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -420,6 +428,9 @@ class gameState():
         if pygame.Rect.colliderect(self.slideRect, self.jumpRect):
             self.slideY = -10
 
+        # if pygame.Rect.colliderect(self.train2Rect, self.trainRect):
+        #     self.train2Y = 
+
         if self.coinY < 750:
             self.coinY += 20 + gameSpeed
             self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
@@ -447,6 +458,8 @@ class gameState():
         else:
             self.coin4Y = random.randint(-300, 0)
             self.coin4X = random.choice(self.coin4XChoices)
+
+        ############ STAY THE SAME FOR ALL THE MODES (ABOVE SECTION) #############
         
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
@@ -455,6 +468,15 @@ class gameState():
             # spawn train in random location
             self.trainY = -600
             self.trainX = random.choice(self.trainXChoices)
+
+        if self.state == "gameStateHard" and self.train2Y < 750:
+            self.train2Y += 20 + gameSpeed
+            self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
+        elif self.state == "gameStateHard" and self.train2Y > 750:
+            # spawn train in random location
+            self.train2Y = random.randint(-1200, -600)
+            self.train2X = random.choice(self.train2XChoices)
+
 
         if self.jumpY < 750:
             self.jumpY += 20 + gameSpeed
@@ -475,6 +497,10 @@ class gameState():
         screen.blit(background, (0, 0)) # coordinates x1 y1
 
         screen.blit(self.trainObs, (self.trainX, self.trainY))
+
+        if self.state == "gameStateHard":
+            screen.blit(self.train2Obs, (self.train2X, self.train2Y))
+
         screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
 
         screen.blit(self.coin, (self.coinX, self.coinY))
@@ -499,11 +525,11 @@ class gameState():
         if self.state == "start":
             self.startPage()
         if self.state == "gameStateEasy":
-            self.gameEasy()
+            self.game()
         if self.state == "gameStateNormal": ##make
-            self.gameNormal()
+            self.game()
         if self.state == "gameStateHard": ##make
-            self.gameHard()
+            self.game()
         if self.state == "over":
             self.gameOverPage()
         if self.state == "shop":
