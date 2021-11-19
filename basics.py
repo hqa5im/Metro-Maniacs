@@ -138,6 +138,7 @@ class gameState():
         self.normalButton = pygame.image.load("buttons/normal.png")
         self.hardButton = pygame.image.load("buttons/hard.png")
         self.shopButton = pygame.image.load("buttons/shop.png")
+        self.restartButton = pygame.image.load("buttons/restart.png")
 
         self.rectEasy = self.easyButton.get_rect(topleft = (170, 469))
         self.rectNormal = self.normalButton.get_rect(topleft = ((170, 564)))
@@ -145,6 +146,7 @@ class gameState():
         self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
+        self.rectRestart = self.restartButton.get_rect(topleft = (150, 600)) # for now
 
         # shop buttons
         self.linkButton = pygame.image.load("buttons/Link.png")
@@ -189,7 +191,6 @@ class gameState():
 
         self.coinSound = pygame.mixer.Sound("coin.mp3")
 
-
     def scoring(self):
         global score, gameSpeed
         score += 1
@@ -221,16 +222,12 @@ class gameState():
 
     # sum of coins
     def updateCoins(self):
-        f = open('coins.txt','r')
-        file = f.readlines()
-        last = int(file[0])
-        if last < int(score):
-            f.close() 
-            file = open('coins.txt', 'w') 
-            file.write(str(score)) 
-            file.close() 
-            return score       
-        return last
+        f = open('coins.txt','w')
+        f.write(str(coins)) 
+        file = f.readline()
+        tot = sum(file)
+        f.close()
+        return tot
 
     def collision(self):
         global coins
@@ -350,13 +347,21 @@ class gameState():
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
 
-
     def gameOverPage(self): ##FOR EASY VERSION
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
 
+            if self.rectRestart.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+                if pygame.mouse.get_pressed()[0] == 1:
+                    self.click = True
+                    # self.state = "start"
+                    self.clickSound.play()
+                    
+            if pygame.mouse.get_pressed()[0] == False:
+                self.click = False
+                
         screen.blit(gameBackground, (0, 0))
         currentScore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Score: {score}", True, (0, 0, 0))
@@ -366,7 +371,8 @@ class gameState():
          f"Highscore: {self.updateScores()}", True, (0, 0, 0))
         screen.blit(currentScore, (width/2- 50, height/2))
         screen.blit(currentCoins, (width/2- 100, height/2 + 100))
-        screen.blit(highscore, (width/2- 100, height/2 + 200))
+        screen.blit(highscore, (width/2- 100, 200))
+        screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
         # need to add restart button - takes tom enu page
@@ -405,13 +411,14 @@ class gameState():
         self.collision()
 
         # collide.rect only takes in rect
-        if pygame.Rect.colliderect(self.slideRect, self.trainRect) and \
-            pygame.Rect.colliderect(self.slideRect, self.jumpRect):
+        if pygame.Rect.colliderect(self.jumpRect, self.trainRect):
             self.jumpX = random.choice(self.jumpXChoices)
 
-        if pygame.Rect.colliderect(self.jumpRect, self.trainRect) and \
-            pygame.Rect.colliderect(self.slideRect, self.jumpRect):
+        if pygame.Rect.colliderect(self.slideRect, self.trainRect):
             self.slideX = random.choice(self.slideXChoices)
+
+        if pygame.Rect.colliderect(self.slideRect, self.jumpRect):
+            self.slideY = -10
 
         if self.coinY < 750:
             self.coinY += 20 + gameSpeed
@@ -535,6 +542,7 @@ linkSlides.add(linkSlides)
 # main loop
 running = True
 while running:
+    # print(pygame.mouse.get_pos())
     gameState1.stateControl()
     clock.tick(15)
 
