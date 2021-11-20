@@ -122,9 +122,7 @@ class gameState():
         self.train2Obs = pygame.image.load("obstacles/train.png")
         self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y))
 
-        # jump obstacles variables
-        # make a jumpY in a list with the second obstacle 
-        # just a few pixels behind it
+        # jump 1 obstacles
         self.jumpXChoices = [60, 195, 350]
         self.jumpX = random.choice(self.jumpXChoices)
         self.jumpY = -600
@@ -132,13 +130,27 @@ class gameState():
         self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
         self.collideJump = False
 
-        # slide obstacel variables
+        # jump 2 obstacles - for hard mode
+        self.jump2XChoices = [60, 195, 350]
+        self.jump2X = random.choice(self.jump2XChoices)
+        self.jump2Y = random.randint(-1200, -600)
+        self.jump2Obs = pygame.image.load("obstacles/jumpObs.png")
+        self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y))
+
+        # slide 1 variables
         self.slideXChoices = [43, 180, 330]
         self.slideX = random.choice(self.slideXChoices)
         self.slideY = -400
         self.slideObs = pygame.image.load("obstacles/slideObs.png")
         self.slideRect = self.slideObs.get_rect(topleft = (self.slideX, self.slideY))
         self.collideSlide = False
+
+        # slide 2 variables
+        self.slide2XChoices = [43, 180, 330]
+        self.slide2X = random.choice(self.slide2XChoices)
+        self.slide2Y = random.randint(-1200, -600)
+        self.slide2Obs = pygame.image.load("obstacles/slideObs.png")
+        self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y))
 
         # button variables
         self.easyButton = pygame.image.load("buttons/easy.png")
@@ -248,6 +260,18 @@ class gameState():
         
         # jump sprite
         if self.jumpRect.colliderect(rectRun) and self.collideJump != True:
+            self.state = "over"
+
+        # train hard
+        if self.train2Rect.colliderect(rectRun) :
+            self.state = "over"
+
+        # slide hard
+        if self.slide2Rect.colliderect(rectRun) and self.collideSlide != True:
+            self.state = "over"
+
+        # jump hard
+        if self.jump2Rect.colliderect(rectRun) and self.collideJump != True:
             self.state = "over"
 
         # coin collision
@@ -418,7 +442,7 @@ class gameState():
         # if collide with player
         self.collision()
 
-        # collide.rect only takes in rect
+        # prevent colision b/w easy obs
         if pygame.Rect.colliderect(self.jumpRect, self.trainRect):
             self.jumpX = random.choice(self.jumpXChoices)
 
@@ -428,8 +452,47 @@ class gameState():
         if pygame.Rect.colliderect(self.slideRect, self.jumpRect):
             self.slideY = -10
 
-        # if pygame.Rect.colliderect(self.train2Rect, self.trainRect):
-        #     self.train2Y = 
+        # prevent collision b/w type 2 obs 
+        if pygame.Rect.colliderect(self.jump2Rect, self.train2Rect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.slide2Rect, self.train2Rect):
+            self.slide2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.slide2Rect, self.jump2Rect):
+            self.slide2Y = random.randint(-1200, -600)
+
+        # prevent collsion b/w slide 2 and obs
+        if pygame.Rect.colliderect(self.slide2Rect, self.slideRect):
+            self.slide2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.slide2Rect, self.trainRect):
+            self.slide2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.slide2Rect, self.jumpRect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        # prevent collsion b/w jump 2 and obs
+        if pygame.Rect.colliderect(self.jump2Rect, self.slideRect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.jump2Rect, self.trainRect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.jump2Rect, self.jumpRect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        # prevent collsion b/w train 2 and obs
+        if pygame.Rect.colliderect(self.train2Rect, self.slideRect):
+            self.train2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.train2Rect, self.trainRect):
+            self.train2Y = random.randint(-1200, -600)
+
+        if pygame.Rect.colliderect(self.train2Rect, self.jumpRect):
+            self.jump2Y = random.randint(-1200, -600)
+
+        ########### COIN VERSION ###############
 
         if self.coinY < 750:
             self.coinY += 20 + gameSpeed
@@ -477,7 +540,6 @@ class gameState():
             self.train2Y = random.randint(-1200, -600)
             self.train2X = random.choice(self.train2XChoices)
 
-
         if self.jumpY < 750:
             self.jumpY += 20 + gameSpeed
             self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
@@ -485,6 +547,13 @@ class gameState():
             # spawn jumps in random location
             self.jumpY = -600
             self.jumpX = random.choice(self.jumpXChoices)
+
+        if self.state == "gameStateHard" and self.jump2Y < 750:
+            self.jump2Y += 20 + gameSpeed
+            self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
+        elif self.state == "gameStateHard" and self.jump2Y > 750:
+            self.jump2Y = random.randint(-1200, -600)
+            self.jump2X = random.choice(self.jump2XChoices)
 
         if self.slideY < 750:
             self.slideY += 20 + gameSpeed
@@ -494,15 +563,24 @@ class gameState():
             self.slideY = -750
             self.slideX = random.choice(self.slideXChoices)
 
-        screen.blit(background, (0, 0)) # coordinates x1 y1
+        if self.state == "gameStateHard" and self.slide2Y < 750:
+            self.slide2Y += 20 + gameSpeed
+            self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
+        elif self.state == "gameStateHard" and self.slide2Y > 750:
+            self.slide2Y = random.randint(-1200, -600)
+            self.slide2X = random.choice(self.slide2XChoices)
 
+        screen.blit(background, (0, 0)) # coordinates x1 y1
         screen.blit(self.trainObs, (self.trainX, self.trainY))
 
         if self.state == "gameStateHard":
             screen.blit(self.train2Obs, (self.train2X, self.train2Y))
+        if self.state == "gameStateHard":
+            screen.blit(self.jump2Obs, (self.jump2X, self.jump2Y))
+        if self.state == "gameStateHard":
+            screen.blit(self.slide2Obs, (self.jump2X, self.jump2Y))
 
         screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
-
         screen.blit(self.coin, (self.coinX, self.coinY))
         screen.blit(self.coin, (self.coin2X, self.coin2Y))
         screen.blit(self.coin, (self.coin3X, self.coin3Y))
