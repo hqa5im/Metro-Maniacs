@@ -107,6 +107,7 @@ class gameState():
         self.runningLink = Running(width/2, height - 100, self.name)
         self.linkRun.add(self.runningLink) # add the sprites at this position
 
+        # self.stateScore = "placeholder"
         self.state = "start"
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
@@ -170,9 +171,11 @@ class gameState():
         # shop buttons
         self.linkButton = pygame.image.load("buttons/Link.png")
         self.sonicButton = pygame.image.load("buttons/Sonic.png")
+        self.marioButton = pygame.image.load("buttons/mario.png")
 
-        self.rectLink = self.linkButton.get_rect(topleft = (153, 452))
-        self.rectSonic = self.sonicButton.get_rect(topleft = (153, 555))
+        self.rectLink = self.linkButton.get_rect(topleft = (153, 252))
+        self.rectSonic = self.sonicButton.get_rect(topleft = (153, 353))
+        self.rectMario = self.marioButton.get_rect(topleft = (153, 453))
 
         # playerRect
         self.x = width/2
@@ -226,8 +229,9 @@ class gameState():
          f"Coins: {coins}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 80))
 
-    # high score
-    def updateScores(self):
+    # high score for easy
+    def updateScoresEasy(self):
+        self.stateScore = "easy"
         f = open('scores.txt','r')
         file = f.readlines()
         last = int(file[0])
@@ -239,7 +243,22 @@ class gameState():
             return score       
         return last
 
+    # high score for hard
+    def updateScoresHard(self):
+        self.stateScore = "hard"
+        f = open('scoresHard.txt','r')
+        file = f.readlines()
+        last = int(file[0])
+        if last < int(score):
+            f.close() 
+            file = open('scoresHard.txt', 'w') 
+            file.write(str(score)) 
+            file.close() 
+            return score       
+        return last
+
     # sum of coins
+    # use for buying characters 
     def updateCoins(self):
         f = open('coins.txt','w')
         f.write(str(coins)) 
@@ -299,6 +318,7 @@ class gameState():
             self.coinSound.play()
             coins += 1
 
+    # add something here for different high scores
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
@@ -349,8 +369,9 @@ class gameState():
             self.shopButtons()
 
         screen.blit(gameBackground, (0, 0))
-        screen.blit(self.linkButton, (150, 450))
-        screen.blit(self.sonicButton, (150, 550))
+        screen.blit(self.linkButton, (150, 250))
+        screen.blit(self.sonicButton, (150, 350))
+        screen.blit(self.marioButton, (150, 450))
         pygame.display.update()
         pygame.display.flip()
 
@@ -370,7 +391,16 @@ class gameState():
                 self.name = "sonic"
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
-                self.linkRun.add(self.runningLink) # add the sprites at this position
+                self.linkRun.add(self.runningLink)
+                self.state = "start"
+                self.clickSound.play()
+        if self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                self.name = "mario"
+                self.linkRun = pygame.sprite.Group()
+                self.runningLink = Running(width/2, height - 100, self.name)
+                self.linkRun.add(self.runningLink)
                 self.state = "start"
                 self.clickSound.play()
         if pygame.mouse.get_pressed()[0] == False:
@@ -396,11 +426,15 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         currentCoins = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Coins Collected: {coins}", True, (0, 0, 0))
+
+        # if self.stateScore == "easy":
         highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
-         f"Highscore: {self.updateScores()}", True, (0, 0, 0))
+        f"Highscore: {self.updateScoresEasy()}", True, (0, 0, 0))
+        screen.blit(highscore, (width/2- 100, 200))
         screen.blit(currentScore, (width/2- 50, height/2))
         screen.blit(currentCoins, (width/2- 100, height/2 + 100))
         screen.blit(highscore, (width/2- 100, 200))
+
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
@@ -492,8 +526,7 @@ class gameState():
         if pygame.Rect.colliderect(self.train2Rect, self.jumpRect):
             self.jump2Y = random.randint(-1200, -600)
 
-        ########### COIN VERSION ###############
-
+        # coin collsion detection
         if self.coinY < 750:
             self.coinY += 20 + gameSpeed
             self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
@@ -533,7 +566,7 @@ class gameState():
             self.trainX = random.choice(self.trainXChoices)
 
         if self.state == "gameStateHard" and self.train2Y < 750:
-            self.train2Y += 20 + gameSpeed
+            self.train2Y += 20 + gameSpeed * 1.5
             self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
         elif self.state == "gameStateHard" and self.train2Y > 750:
             # spawn train in random location
@@ -549,7 +582,7 @@ class gameState():
             self.jumpX = random.choice(self.jumpXChoices)
 
         if self.state == "gameStateHard" and self.jump2Y < 750:
-            self.jump2Y += 20 + gameSpeed
+            self.jump2Y += 20 + gameSpeed * 1.5
             self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
         elif self.state == "gameStateHard" and self.jump2Y > 750:
             self.jump2Y = random.randint(-1200, -600)
@@ -564,7 +597,7 @@ class gameState():
             self.slideX = random.choice(self.slideXChoices)
 
         if self.state == "gameStateHard" and self.slide2Y < 750:
-            self.slide2Y += 20 + gameSpeed
+            self.slide2Y += 20 + gameSpeed * 1.5
             self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
         elif self.state == "gameStateHard" and self.slide2Y > 750:
             self.slide2Y = random.randint(-1200, -600)
@@ -606,7 +639,7 @@ class gameState():
             self.game()
         if self.state == "gameStateNormal": ##make
             self.game()
-        if self.state == "gameStateHard": ##make
+        if self.state == "gameStateHard":
             self.game()
         if self.state == "over":
             self.gameOverPage()
