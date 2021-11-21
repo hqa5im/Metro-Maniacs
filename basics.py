@@ -500,7 +500,7 @@ class gameState():
             self.slide2Y = random.randint(-1200, -600)
 
         if pygame.Rect.colliderect(self.slide2Rect, self.jump2Rect):
-            self.slide2Y = random.randint(-1200, -600)
+            self.jump2Y = random.randint(-1200, -600)
 
         # prevent collsion b/w slide 2 and obs
         if pygame.Rect.colliderect(self.slide2Rect, self.slideRect):
@@ -572,7 +572,7 @@ class gameState():
             self.trainX = random.choice(self.trainXChoices)
 
         if self.state == "gameStateHard" and self.train2Y < 750:
-            self.train2Y += 20 + gameSpeed * 1.5
+            self.train2Y += 20 + gameSpeed * 2
             self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
         elif self.state == "gameStateHard" and self.train2Y > 750:
             # spawn train in random location
@@ -583,14 +583,20 @@ class gameState():
             self.jumpY += 20 + gameSpeed
             self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
         else:
-            # spawn jumps in random location
-            self.jumpY = -600
+            self.jumpY = -600 ####### THIS???
             self.jumpX = random.choice(self.jumpXChoices)
 
         if self.state == "gameStateHard" and self.jump2Y < 750:
-            self.jump2Y += 20 + gameSpeed * 1.5
+            self.jump2Y += 20 + gameSpeed * 2
             self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
         elif self.state == "gameStateHard" and self.jump2Y > 750:
+            self.jump2Y = random.randint(-1200, -600)
+            self.jump2X = random.choice(self.jump2XChoices)
+
+        if self.state == "gameStateNormal" and self.jump2Y < 750:
+            self.jump2Y += 20 + gameSpeed * 1.5
+            self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
+        elif self.state == "gameStateNormal" and self.jump2Y > 750:
             self.jump2Y = random.randint(-1200, -600)
             self.jump2X = random.choice(self.jump2XChoices)
 
@@ -598,14 +604,20 @@ class gameState():
             self.slideY += 20 + gameSpeed
             self.slideRect = self.sliding.get_rect(topleft = (self.slideX + 5, self.slideY - 30))
         else:
-            # spawn slides in random location
             self.slideY = -750
             self.slideX = random.choice(self.slideXChoices)
 
         if self.state == "gameStateHard" and self.slide2Y < 750:
-            self.slide2Y += 20 + gameSpeed * 1.5
+            self.slide2Y += 20 + gameSpeed * 2
             self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
         elif self.state == "gameStateHard" and self.slide2Y > 750:
+            self.slide2Y = random.randint(-1200, -600)
+            self.slide2X = random.choice(self.slide2XChoices)
+
+        if self.state == "gameStateNormal" and self.slide2Y < 750:
+            self.slide2Y += 20 + gameSpeed * 1.5
+            self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
+        elif self.state == "gameStateNormal" and self.slide2Y > 750:
             self.slide2Y = random.randint(-1200, -600)
             self.slide2X = random.choice(self.slide2XChoices)
 
@@ -614,10 +626,10 @@ class gameState():
 
         if self.state == "gameStateHard":
             screen.blit(self.train2Obs, (self.train2X, self.train2Y))
-        if self.state == "gameStateHard":
+        if self.state == "gameStateHard" or self.state == "gameStateNormal":
             screen.blit(self.jump2Obs, (self.jump2X, self.jump2Y))
-        if self.state == "gameStateHard":
-            screen.blit(self.slide2Obs, (self.jump2X, self.jump2Y))
+        if self.state == "gameStateHard" or self.state == "gameStateNormal":
+            screen.blit(self.slide2Obs, (self.slide2X, self.slide2Y))
 
         screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
         screen.blit(self.coin, (self.coinX, self.coinY))
@@ -632,6 +644,7 @@ class gameState():
         slidingLink.update()
 
         # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
+        # pygame.draw.rect(screen, (255, 255, 0), self.jump2Rect)  ##########
         pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 75))
         self.scoring()
         self.coinTotal()
