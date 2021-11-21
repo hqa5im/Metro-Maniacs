@@ -3,7 +3,12 @@ import pygame
 import random
 from sys import exit
 
-# Assets: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
+# Asset Link: https://www.deviantart.com/tiozacdasgalaxias/art/Link-Sprite-Sheet-662562870
+# Asset Sonic: https://mb.srb2.org/threads/adventure-sonic-sa-sonic-progress.29955/page-5
+# Asset Other Characters: https://www.deviantart.com/dudeanime21/
+#                           art/SMBZ-Backview-Running-Sprites-614481455
+#https://www.deviantart.com/dudeanime21/art/SMBZ-Forward-Run-Sprites-597217977
+        
 # coin asset: https://totuslotus.itch.io/pixel-coins
 # basic loop and intial sprite template: https://youtu.be/MYaxPa_eZS0
 # Background: https://htmlcolorcodes.com/colors/purple/
