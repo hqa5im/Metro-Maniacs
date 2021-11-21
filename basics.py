@@ -189,6 +189,21 @@ class gameState():
         self.sliding = pygame.image.load("slides/linkSlide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
+        # boosters
+        # jetapack - with jetpack comes 100 coins
+        self.jetpackXChoices = [80, 230, 370]
+        self.jetpackX = random.choice(self.jetpackXChoices)
+        self.jetpackY = -1000
+        self.jetpack = pygame.image.load("boosters/jetpack.png")
+        self.jectpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
+
+        # extra life
+        self.extraLifeXChoices = [80, 230, 370]
+        self.extraLifeX = random.choice(self.extraLifeXChoices)
+        self.extraLifeY = -1500
+        self.extraLife = pygame.image.load("boosters/extraLife.png")
+        self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
+
         # coin 1
         self.coinXChoices = [80, 230, 370]
         self.coinX = random.choice(self.coinXChoices)
@@ -385,6 +400,7 @@ class gameState():
         pygame.display.update()
         pygame.display.flip()
 
+# write locked next to buying item until unlocked
     def shopButtons(self):
         if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
@@ -392,7 +408,7 @@ class gameState():
                 self.name = "Link"
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
-                self.linkRun.add(self.runningLink) # add the sprites at this position
+                self.linkRun.add(self.runningLink)
                 self.state = "start"
                 self.clickSound.play()
         if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -425,7 +441,6 @@ class gameState():
             if self.rectRestart.collidepoint(pygame.mouse.get_pos()) and self.click == False:
                 if pygame.mouse.get_pressed()[0] == 1:
                     self.click = True
-                    # self.state = "start"
                     self.clickSound.play()
                     
             if pygame.mouse.get_pressed()[0] == False:
@@ -566,7 +581,20 @@ class gameState():
             self.coin4Y = random.randint(-300, 0)
             self.coin4X = random.choice(self.coin4XChoices)
 
-        ############ STAY THE SAME FOR ALL THE MODES (ABOVE SECTION) #############
+        # boosters
+        if self.jetpackY < 750:
+            self.jetpackY += 20 + gameSpeed
+            self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
+        else:
+            self.jetpackY = -1000
+            self.jetpackX = random.choice(self.jetpackXChoices)
+
+        if self.extraLifeY < 750:
+            self.extraLifeY += 20 + gameSpeed
+            self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
+        else:
+            self.extraLifeY = -1000
+            self.extraLifeX = random.choice(self.extraLifeXChoices)
         
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
@@ -627,20 +655,22 @@ class gameState():
             self.slide2X = random.choice(self.slide2XChoices)
 
         screen.blit(background, (0, 0)) # coordinates x1 y1
-        screen.blit(self.trainObs, (self.trainX, self.trainY))
 
+        screen.blit(self.trainObs, (self.trainX, self.trainY))
         if self.state == "gameStateHard":
             screen.blit(self.train2Obs, (self.train2X, self.train2Y))
         if self.state == "gameStateHard" or self.state == "gameStateNormal":
             screen.blit(self.jump2Obs, (self.jump2X, self.jump2Y))
         if self.state == "gameStateHard" or self.state == "gameStateNormal":
             screen.blit(self.slide2Obs, (self.slide2X, self.slide2Y))
-
         screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
         screen.blit(self.coin, (self.coinX, self.coinY))
         screen.blit(self.coin, (self.coin2X, self.coin2Y))
         screen.blit(self.coin, (self.coin3X, self.coin3Y))
         screen.blit(self.coin, (self.coin4X, self.coin4Y))
+
+        screen.blit(self.jetpack, (self.jetpackX, self.jetpackY))
+        screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
 
         linkSlides.draw(screen)
         self.linkRun.draw(screen)
