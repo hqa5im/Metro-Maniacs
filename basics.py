@@ -195,7 +195,8 @@ class gameState():
         self.jetpackX = random.choice(self.jetpackXChoices)
         self.jetpackY = -1000
         self.jetpack = pygame.image.load("boosters/jetpack.png")
-        self.jectpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
+        self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
+        self.jets = False
 
         # extra life
         self.extraLifeXChoices = [80, 230, 370]
@@ -203,6 +204,7 @@ class gameState():
         self.extraLifeY = -1500
         self.extraLife = pygame.image.load("boosters/extraLife.png")
         self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
+        self.lives = False
 
         # coin 1
         self.coinXChoices = [80, 230, 370]
@@ -342,6 +344,16 @@ class gameState():
             self.coin4X = random.choice(self.coin4XChoices)
             self.coinSound.play()
             coins += 1
+
+        if self.jetpackRect.colliderect(rectRun):
+            self.jetpackY = - 2000
+            self.jetpackX = random.choice(self.jetpackXChoices)
+            self.jets = True
+        
+        if self.extraLifeRect.colliderect(rectRun):
+            self.extraLifeY = - 2500
+            self.extraLifeX = random.choice(self.extraLifeXChoices)
+            self.lives = True
 
     # add something here for different high scores
     def button(self):
