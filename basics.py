@@ -109,6 +109,7 @@ class gameState():
 
         # self.stateScore = "placeholder"
         self.state = "start"
+        self.updateCoin = True
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
         self.trainX = random.choice(self.trainXChoices)
@@ -264,8 +265,8 @@ class gameState():
         f = open('coins.txt','r') 
         file = f.readline()
         f.close()
-        f = open('coins.txt','w') 
-        tot = int(file[0]) + coins
+        f = open('coins.txt','w')
+        tot = int(file) + coins
         tot = str(tot)
         f.write(tot)
         f.close()
@@ -410,7 +411,7 @@ class gameState():
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
 
-    def gameOverPage(self): ##FOR EASY VERSION
+    def gameOverPage(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -425,8 +426,10 @@ class gameState():
             if pygame.mouse.get_pressed()[0] == False:
                 self.click = False
 
-        self.updateCoins()
-                
+        if self.updateCoin == True:
+            self.updateCoins()
+            self.updateCoin = False
+        
         screen.blit(gameBackground, (0, 0))
         currentScore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Score: {score}", True, (0, 0, 0))
@@ -445,9 +448,6 @@ class gameState():
         pygame.display.update()
         pygame.display.flip()
         # need to add restart button - takes to menu page
-
-    def gameEasy(self):
-        pass
 
     def game(self):
         for event in pygame.event.get():
