@@ -240,7 +240,8 @@ class gameState():
             file = open('scores.txt', 'w') 
             file.write(str(score)) 
             file.close() 
-            return score       
+            return score
+        f.close()       
         return last
 
     # high score for hard
@@ -260,10 +261,13 @@ class gameState():
     # sum of coins
     # use for buying characters 
     def updateCoins(self):
-        f = open('coins.txt','w')
-        f.write(str(coins)) 
+        f = open('coins.txt','r') 
         file = f.readline()
-        tot = sum(file)
+        f.close()
+        f = open('coins.txt','w') 
+        tot = int(file[0]) + coins
+        tot = str(tot)
+        f.write(tot)
         f.close()
         return tot
 
@@ -420,16 +424,18 @@ class gameState():
                     
             if pygame.mouse.get_pressed()[0] == False:
                 self.click = False
+
+        self.updateCoins()
                 
         screen.blit(gameBackground, (0, 0))
         currentScore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Score: {score}", True, (0, 0, 0))
         currentCoins = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Coins Collected: {coins}", True, (0, 0, 0))
-
         # if self.stateScore == "easy":
         highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
         f"Highscore: {self.updateScoresEasy()}", True, (0, 0, 0))
+
         screen.blit(highscore, (width/2- 100, 200))
         screen.blit(currentScore, (width/2- 50, height/2))
         screen.blit(currentCoins, (width/2- 100, height/2 + 100))
