@@ -306,6 +306,7 @@ class gameState():
             self.i += 1
         elif self.trainRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
+            self.trainY -= 500
             print("revived1")
 
         # sliding sprite
@@ -316,6 +317,7 @@ class gameState():
             self.i += 1
         elif self.slideRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
+            self.slideY -= 500
             print("revived2")
         
         # jump sprite
@@ -326,6 +328,7 @@ class gameState():
             self.i += 1
         elif self.jumpRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
+            self.jumpY -= 500
             print("revived3")
 
         # train hard
@@ -335,6 +338,7 @@ class gameState():
             self.i += 1
         elif self.train2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
+            self.train2Y -= 500
             print("revived4")
 
         # slide hard
@@ -345,7 +349,7 @@ class gameState():
             self.i += 1
         elif self.slide2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
-            # self.jets = True ## revive time
+            self.slide2Y -= 500
             ##the object some distance back or have no collsion enabled for short time period
             print("revived5")
 
@@ -357,6 +361,7 @@ class gameState():
             self.i += 1
         elif self.jump2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
+            self.jump2Y -= 500
             print("revived6")
 
         # coin collision
