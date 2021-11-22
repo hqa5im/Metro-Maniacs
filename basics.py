@@ -113,6 +113,8 @@ class gameState():
         self.linkRun.add(self.runningLink) # add the sprites at this position
 
         # self.stateScore = "placeholder"
+        self.i = 0
+        self.timer = 0
         self.state = "start"
         self.updateCoin = True
         # train 1 variables
@@ -205,6 +207,7 @@ class gameState():
         self.extraLife = pygame.image.load("boosters/extraLife.png")
         self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
         self.lives = False
+        self.numLives = 0
 
         # coin 1
         self.coinXChoices = [80, 230, 370]
@@ -297,28 +300,64 @@ class gameState():
     def collision(self):
         global coins
         # running sprite
-        if self.trainRect.colliderect(rectRun):
+        if self.trainRect.colliderect(rectRun) and self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.trainRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            print("revived1")
 
         # sliding sprite
-        if self.slideRect.colliderect(rectRun) and self.collideSlide != True:
+        if self.slideRect.colliderect(rectRun) and self.collideSlide != True and \
+             self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.slideRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            print("revived2")
         
         # jump sprite
-        if self.jumpRect.colliderect(rectRun) and self.collideJump != True:
+        if self.jumpRect.colliderect(rectRun) and self.collideJump != True and \
+            self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.jumpRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            print("revived3")
 
         # train hard
-        if self.train2Rect.colliderect(rectRun) :
+        if self.train2Rect.colliderect(rectRun) and self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.train2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            print("revived4")
 
         # slide hard
-        if self.slide2Rect.colliderect(rectRun) and self.collideSlide != True:
+        if self.slide2Rect.colliderect(rectRun) and self.collideSlide != True and \
+            self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.slide2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            # self.jets = True ## revive time
+            ##the object some distance back or have no collsion enabled for short time period
+            print("revived5")
 
         # jump hard
-        if self.jump2Rect.colliderect(rectRun) and self.collideJump != True:
+        if self.jump2Rect.colliderect(rectRun) and self.collideJump != True and \
+            self.jets == False and self.numLives <= 0 and self.lives == False:
             self.state = "over"
+        elif self.jets == True:
+            self.i += 1
+        elif self.jump2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
+            self.numLives -= 1
+            print("revived6")
 
         # coin collision
         if self.coinRect.colliderect(rectRun):
@@ -345,15 +384,31 @@ class gameState():
             self.coinSound.play()
             coins += 1
 
-        if self.jetpackRect.colliderect(rectRun):
+        # print(self.jets)
+        print(self.lives)
+
+        # collison with boosters
+        if self.jetpackRect.colliderect(rectRun) and self.i < 100:
             self.jetpackY = - 2000
             self.jetpackX = random.choice(self.jetpackXChoices)
+            coins += 10
             self.jets = True
+            # self.timer = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+            # f"time: {self.i}", True, (0, 0, 0))
+        elif self.i >= 1000:
+            self.i = 0
+            self.jets = False
         
         if self.extraLifeRect.colliderect(rectRun):
             self.extraLifeY = - 2500
             self.extraLifeX = random.choice(self.extraLifeXChoices)
             self.lives = True
+            self.numLives += 1
+            print(self.numLives)
+        elif self.numLives <= 0:
+            self.lives = False
+            ## add extra life box like for score to see how many you have
+            # save num of extra lives
 
     # add something here for different high scores
     def button(self):
@@ -475,7 +530,7 @@ class gameState():
         screen.blit(currentScore, (width/2- 50, height/2))
         screen.blit(currentCoins, (width/2- 100, height/2 + 100))
         screen.blit(highscore, (width/2- 100, 200))
-
+        
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
@@ -607,6 +662,7 @@ class gameState():
         else:
             self.extraLifeY = -1000
             self.extraLifeX = random.choice(self.extraLifeXChoices)
+
         
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
@@ -628,7 +684,7 @@ class gameState():
             self.jumpY += 20 + gameSpeed
             self.jumpRect = self.jumpObs.get_rect(topleft = (self.jumpX, self.jumpY))
         else:
-            self.jumpY = -600 ####### THIS???
+            self.jumpY = -600 
             self.jumpX = random.choice(self.jumpXChoices)
 
         if self.state == "gameStateHard" and self.jump2Y < 750:
@@ -683,6 +739,7 @@ class gameState():
 
         screen.blit(self.jetpack, (self.jetpackX, self.jetpackY))
         screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
+        # screen.blit(self.timer, (width/2 - 100, 100)) # booster timer
 
         linkSlides.draw(screen)
         self.linkRun.draw(screen)
