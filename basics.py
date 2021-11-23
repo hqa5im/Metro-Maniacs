@@ -184,6 +184,9 @@ class gameState():
         self.rectLink = self.linkButton.get_rect(topleft = (153, 252))
         self.rectSonic = self.sonicButton.get_rect(topleft = (153, 353))
         self.rectMario = self.marioButton.get_rect(topleft = (153, 453))
+        self.buySonic = False
+        self.buyMario = False
+        self.buy = False
 
         # playerRect
         self.x = width/2
@@ -291,11 +294,41 @@ class gameState():
         file = f.readline()
         f.close()
         f = open('coins.txt','w')
+        # print(coins)
         tot = int(file) + coins
+        if tot <= 0:
+            tot = 0
         tot = str(tot)
         f.write(tot)
         f.close()
         return tot
+
+    def readCoins(self):
+        f = open('coins.txt', 'r')
+        file = f.readline()
+        tot = int(file)
+        if tot <= 0:
+            tot = 0
+        tot = str(tot)
+        f.close()
+        return tot
+
+    def updateShopCoins(self):
+        tot = int(self.readCoins()) + coins
+        f = open('coins.txt', 'w')
+        if tot <= 0:
+            tot = 0
+        tot = str(tot)
+        f.write(tot)
+        f.close()
+        return tot
+
+    def bank(self):
+        money = self.readCoins()
+        global coins
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+         f"Coins: {money}", True, (0, 0, 0))
+        screen.blit(text, (width - 150, 80))
 
     def collision(self):
         global coins
@@ -306,8 +339,8 @@ class gameState():
             self.i += 1
         elif self.trainRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
-            self.trainY -= 500
-            print("revived1")
+            self.trainY -= 500 ## move other ojects with it
+            # print("revived1")
 
         # sliding sprite
         if self.slideRect.colliderect(rectRun) and self.collideSlide != True and \
@@ -318,7 +351,7 @@ class gameState():
         elif self.slideRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.slideY -= 500
-            print("revived2")
+            # print("revived2")
         
         # jump sprite
         if self.jumpRect.colliderect(rectRun) and self.collideJump != True and \
@@ -329,7 +362,7 @@ class gameState():
         elif self.jumpRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.jumpY -= 500
-            print("revived3")
+            # print("revived3")
 
         # train hard
         if self.train2Rect.colliderect(rectRun) and self.jets == False and self.numLives <= 0 and self.lives == False:
@@ -339,7 +372,7 @@ class gameState():
         elif self.train2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.train2Y -= 500
-            print("revived4")
+            # print("revived4")
 
         # slide hard
         if self.slide2Rect.colliderect(rectRun) and self.collideSlide != True and \
@@ -351,7 +384,7 @@ class gameState():
             self.numLives -= 1
             self.slide2Y -= 500
             ##the object some distance back or have no collsion enabled for short time period
-            print("revived5")
+            # print("revived5")
 
         # jump hard
         if self.jump2Rect.colliderect(rectRun) and self.collideJump != True and \
@@ -362,7 +395,7 @@ class gameState():
         elif self.jump2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.jump2Y -= 500
-            print("revived6")
+            # print("revived6")
 
         # coin collision
         if self.coinRect.colliderect(rectRun):
@@ -399,7 +432,7 @@ class gameState():
             coins += 10
             self.jets = True
             # self.timer = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
-            # f"time: {self.i}", True, (0, 0, 0))
+            # f"time: {10 - self.i}", True, (0, 0, 0))
         elif self.i >= 1000:
             self.i = 0
             self.jets = False
@@ -463,17 +496,34 @@ class gameState():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 exit()
-            self.shopButtons()
+            self.shopButtons(event)
 
         screen.blit(gameBackground, (0, 0))
         screen.blit(self.linkButton, (150, 250))
         screen.blit(self.sonicButton, (150, 350))
         screen.blit(self.marioButton, (150, 450))
+        # show total coins
+        self.bank() # put limit that coins cannot go below 0
         pygame.display.update()
         pygame.display.flip()
 
 # write locked next to buying item until unlocked
-    def shopButtons(self):
+    def shopButtons(self, func):
+        global coins
+        if func.type == pygame.KEYDOWN:
+            if func.unicode == "1":
+                self.buy = True
+                coins -=100
+                self.updateShopCoins()
+                print("1")
+
+            if func.unicode == "2":
+                self.buy = True
+                coins -= 200
+                self.updateShopCoins()
+                print("2")
+
+        # print(self.buy)
         if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
@@ -483,7 +533,8 @@ class gameState():
                 self.linkRun.add(self.runningLink)
                 self.state = "start"
                 self.clickSound.play()
-        if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+        # Locked charactcers
+        if self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == True:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 self.name = "sonic"
@@ -492,7 +543,14 @@ class gameState():
                 self.linkRun.add(self.runningLink)
                 self.state = "start"
                 self.clickSound.play()
-        if self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+        elif self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                if self.buy == True:
+                    print("chaaracter locked for 100 coins! Press 1 to buy")
+                    self.buySonic = True
+                    self.buy = False
+        if self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == True:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 self.name = "mario"
@@ -501,6 +559,14 @@ class gameState():
                 self.linkRun.add(self.runningLink)
                 self.state = "start"
                 self.clickSound.play()
+        elif self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == False and self.buy == True:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                if self.buy == True:
+                    print("character locked for 200 coins! Press 2 to buy")
+                    self.buyMario = True
+                    self.buy = False
+
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
 
