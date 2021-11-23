@@ -83,14 +83,14 @@ class Running(pygame.sprite.Sprite):
     
 # for single sliding sprite
 class Slide(pygame.sprite.Sprite):
-    def __init__(self, x, y):
+    def __init__(self, x, y, name):
         super().__init__()
         self.x = x
         self.y = y
 
         self.i = 0
 
-        self.sliding = pygame.image.load("slides/linkSlide.png")
+        self.sliding = pygame.image.load(f"slides/{name}Slide.png")
         self.rect = self.sliding.get_rect(midbottom = (self.x, self.y))
 
         # other variables
@@ -111,12 +111,16 @@ class gameState():
         self.linkRun = pygame.sprite.Group()
         self.runningLink = Running(width/2, height - 100, self.name)
         self.linkRun.add(self.runningLink) # add the sprites at this position
+        
+        self.linkSlides = pygame.sprite.GroupSingle()
+        self.slidingLink = Slide(width/2, height - 100, self.name)
+        self.linkSlides.add(self.linkSlides)
 
-        # self.stateScore = "placeholder"
         self.i = 0
         self.timer = 0
         self.state = "start"
         self.updateCoin = True
+
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
         self.trainX = random.choice(self.trainXChoices)
@@ -246,9 +250,7 @@ class gameState():
         global score, gameSpeed
         score += 1
         if score % 100 == 0:
-            gameSpeed += 5
-
-            print(gameSpeed)
+            gameSpeed += 1
 
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Score: {score}", True, (0, 0, 0))
@@ -431,8 +433,9 @@ class gameState():
         if self.jetpackRect.colliderect(rectRun) and self.i < 100:
             self.jetpackY = - 2000
             self.jetpackX = random.choice(self.jetpackXChoices)
-            coins += 10
+            coins += 100
             self.jets = True
+            # screen.blit()
             # self.timer = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
             # f"time: {10 - self.i}", True, (0, 0, 0))
         elif self.i >= 1000:
@@ -533,6 +536,11 @@ class gameState():
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
                 self.linkRun.add(self.runningLink)
+
+                self.linkSlides = pygame.sprite.GroupSingle()
+                self.slidingLink = Slide(width/2, height - 100, self.name)
+                self.linkSlides.add(self.linkSlides)
+
                 self.state = "start"
                 self.clickSound.play()
         # Locked charactcers
@@ -543,6 +551,11 @@ class gameState():
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
                 self.linkRun.add(self.runningLink)
+
+                self.linkSlides = pygame.sprite.GroupSingle()
+                self.slidingLink = Slide(width/2, height - 100, self.name)
+                self.linkSlides.add(self.linkSlides)
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == False:
@@ -559,6 +572,11 @@ class gameState():
                 self.linkRun = pygame.sprite.Group()
                 self.runningLink = Running(width/2, height - 100, self.name)
                 self.linkRun.add(self.runningLink)
+
+                self.linkSlides = pygame.sprite.GroupSingle()
+                self.slidingLink = Slide(width/2, height - 100, self.name)
+                self.linkSlides.add(self.linkSlides)
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == False and self.buy == True:
@@ -573,6 +591,7 @@ class gameState():
             self.click = False
 
     def gameOverPage(self):
+        global coins
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -582,6 +601,7 @@ class gameState():
                 if pygame.mouse.get_pressed()[0] == 1:
                     self.click = True
                     self.clickSound.play()
+                    coins = 0
                     self.__init__()
                     
             if pygame.mouse.get_pressed()[0] == False:
@@ -628,7 +648,7 @@ class gameState():
                     self.collideJump = True
 
                 if event.unicode == "s":
-                    slidingLink.slide = True
+                    self.slidingLink.slide = True
                     self.collideSlide = True
 
             if event.type == pygame.KEYUP:
@@ -814,11 +834,11 @@ class gameState():
         screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
         # screen.blit(self.timer, (width/2 - 100, 100)) # booster timer
 
-        linkSlides.draw(screen)
+        self.linkSlides.draw(screen)
         self.linkRun.draw(screen)
         screen.blit(self.slideObs, (self.slideX, self.slideY))
         self.linkRun.update(140, 70)
-        slidingLink.update()
+        self.slidingLink.update()
 
         # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
         # pygame.draw.rect(screen, (255, 255, 0), self.jump2Rect)  ##########
@@ -833,7 +853,7 @@ class gameState():
             self.startPage()
         if self.state == "gameStateEasy":
             self.game()
-        if self.state == "gameStateNormal": ##make
+        if self.state == "gameStateNormal":
             self.game()
         if self.state == "gameStateHard":
             self.game()
@@ -849,6 +869,8 @@ score = 0
 gameSpeed = 0
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
+backSound = pygame.mixer.Sound("background.mp3")
+# backSound.play()
 pygame.display.set_caption("Metro Maniacs")
 # intro background through image
 background = pygame.image.load("purple.png")
@@ -868,9 +890,9 @@ gameBackground.fill((255, 255, 102))
 coins = 0
 
 # sliding sprite pics
-linkSlides = pygame.sprite.GroupSingle()
-slidingLink = Slide(width/2, height - 100)
-linkSlides.add(linkSlides)
+# linkSlides = pygame.sprite.GroupSingle()
+# slidingLink = Slide(width/2, height - 100)
+# linkSlides.add(linkSlides)
 
 # main loop
 running = True
