@@ -245,8 +245,10 @@ class gameState():
     def scoring(self):
         global score, gameSpeed
         score += 1
-        if score % 100 == 0 and gameState == "start":
+        if score % 100 == 0:
             gameSpeed += 5
+
+            print(gameSpeed)
 
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Score: {score}", True, (0, 0, 0))
@@ -423,7 +425,7 @@ class gameState():
             coins += 1
 
         # print(self.jets)
-        print(self.lives)
+        # print(self.lives)
 
         # collison with boosters
         if self.jetpackRect.colliderect(rectRun) and self.i < 100:
@@ -442,7 +444,7 @@ class gameState():
             self.extraLifeX = random.choice(self.extraLifeXChoices)
             self.lives = True
             self.numLives += 1
-            print(self.numLives)
+            # print(self.numLives)
         elif self.numLives <= 0:
             self.lives = False
             ## add extra life box like for score to see how many you have
@@ -795,7 +797,6 @@ class gameState():
             self.slide2X = random.choice(self.slide2XChoices)
 
         screen.blit(background, (0, 0)) # coordinates x1 y1
-
         screen.blit(self.trainObs, (self.trainX, self.trainY))
         if self.state == "gameStateHard":
             screen.blit(self.train2Obs, (self.train2X, self.train2Y))
