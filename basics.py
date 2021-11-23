@@ -580,6 +580,7 @@ class gameState():
                 if pygame.mouse.get_pressed()[0] == 1:
                     self.click = True
                     self.clickSound.play()
+                    self.__init__()
                     
             if pygame.mouse.get_pressed()[0] == False:
                 self.click = False
