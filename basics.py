@@ -121,9 +121,11 @@ class gameState():
         self.num = 0
         self.state = "start"
         self.updateCoin = True
-        coins = 0
-        score = 0
-        gameSpeed = 0
+        self.fail = pygame.image.load("fail.png")
+        self.unbuy = False
+        # coins = 0
+        # score = 0
+        # gameSpeed = 0
 
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
@@ -350,7 +352,6 @@ class gameState():
 
     def bank(self):
         money = self.readCoins()
-        global coins
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Coins: {money}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 80))
@@ -458,15 +459,7 @@ class gameState():
             self.numLives += 1
         elif self.numLives <= 0:
             self.lives = False
-
-        if self.jetpackRect.colliderect(self.trainRect):
-            self.jetpackY = - 6000
-            self.jetpackX = random.choice(self.jetpackXChoices)
-        
-        if self.extraLifeRect.colliderect(self.train2Rect):
-            self.extraLifeY = - 3000
-            self.extraLifeX = random.choice(self.extraLifeXChoices)
-            
+    
     # add something here for different high scores
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -523,6 +516,10 @@ class gameState():
         screen.blit(self.marioButton, (150, 450))
         screen.blit(self.shopText1, (110, 600))
         screen.blit(self.shopText2, (150, 150))
+        # back to start button
+        if self.unbuy == True:
+            screen.blit(self.fail, (100, 400))
+            self.unbuy = False
 
         # show total coins
         self.bank()
@@ -533,15 +530,19 @@ class gameState():
     def shopButtons(self, func):
         global coins
         if func.type == pygame.KEYDOWN:
-            if func.unicode == "1":
+            if func.unicode == "1" and int(self.readCoins()) >= 100:
                 self.buy = True
                 coins -=100
                 self.updateShopCoins()
+            elif func.unicode == "1" and int(self.readCoins()) < 100:
+                self.unbuy = True
 
-            if func.unicode == "2":
+            if func.unicode == "2" and int(self.readCoins()) >= 200:
                 self.buy = True
                 coins -= 200
                 self.updateShopCoins()
+            elif func.unicode == "2" and int(self.readCoins()) < 200:
+                self.unbuy = True
 
         if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
@@ -570,13 +571,14 @@ class gameState():
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
 
+                coins = 0
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 if self.buy == True:
-                    print("chaaracter locked for 100 coins! Press 1 to buy")
                     self.buySonic = True
                     self.buy = False
         if self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == True:
@@ -591,13 +593,14 @@ class gameState():
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
 
+                coins = 0
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == False and self.buy == True:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 if self.buy == True:
-                    print("character locked for 200 coins! Press 2 to buy")
                     self.buyMario = True
                     self.buy = False
 
@@ -726,6 +729,14 @@ class gameState():
 
         if pygame.Rect.colliderect(self.train2Rect, self.jumpRect):
             self.jump2Y = random.randint(-1200, -600)
+
+        if self.jetpackRect.colliderect(self.trainRect):
+            self.jetpackY = - 6000
+            self.jetpackX = random.choice(self.jetpackXChoices)
+        
+        if self.extraLifeRect.colliderect(self.train2Rect):
+            self.extraLifeY = - 3000
+            self.extraLifeX = random.choice(self.extraLifeXChoices)
 
         # coin collsion detection
         if self.coinY < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
