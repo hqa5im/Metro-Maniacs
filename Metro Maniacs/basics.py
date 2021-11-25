@@ -16,6 +16,9 @@ from sys import exit
 #                       game-music-action-faced-paced-euro-style-house-rave
 #                       -pumping-with-electronic-wobble-bass-synth-elements/
 # click sound: https://www.zapsplat.com/music/active-studio-speaker-power-switch-click-5/
+# slide sound:
+# jump sound: 
+# powerup sound:
 # coin sound: https://www.zapsplat.com/music/retro-8-bit-game-collect-point-00/
 # resizing pixels of images: https://lospec.com/pixel-art-scaler/
 # high score method: https://www.techwithtim.net/tutorials/game
@@ -106,6 +109,7 @@ class Slide(pygame.sprite.Sprite):
 
 class gameState():
     def __init__(self):
+        global coins, score, gameSpeed ############
         # player variables !!!!
         self.name = "Link"
         self.linkRun = pygame.sprite.Group()
@@ -117,9 +121,14 @@ class gameState():
         self.linkSlides.add(self.linkSlides)
 
         self.i = 0
-        self.timer = 0
+        self.num = 0
         self.state = "start"
         self.updateCoin = True
+        self.fail = pygame.image.load("fail.png")
+        self.unbuy = False
+        self.slideSound = pygame.mixer.Sound("slideSound.mp3")
+        self.jumpSound = pygame.mixer.Sound("jumpSound.mp3")
+        self.powerUp = pygame.mixer.Sound("powerUp.mp3")
 
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
@@ -184,6 +193,8 @@ class gameState():
         self.linkButton = pygame.image.load("buttons/Link.png")
         self.sonicButton = pygame.image.load("buttons/Sonic.png")
         self.marioButton = pygame.image.load("buttons/mario.png")
+        self.shopText1 = pygame.image.load("shopText1.png")
+        self.shopText2 = pygame.image.load("shopText2.png")
 
         self.rectLink = self.linkButton.get_rect(topleft = (153, 252))
         self.rectSonic = self.sonicButton.get_rect(topleft = (153, 353))
@@ -206,6 +217,8 @@ class gameState():
         self.jetpack = pygame.image.load("boosters/jetpack.png")
         self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
         self.jets = False
+        self.jetButton = pygame.image.load("buttons/boosterButton.png")
+        self.theJet = pygame.image.load("theJet.png")
 
         # extra life
         self.extraLifeXChoices = [80, 230, 370]
@@ -215,6 +228,7 @@ class gameState():
         self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
         self.lives = False
         self.numLives = 0
+        self.extraButton = pygame.image.load("buttons/extraButton.png")
 
         # coin 1
         self.coinXChoices = [80, 230, 370]
@@ -256,6 +270,18 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 50))
 
+    def jetCounter(self):
+ 
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 24),
+         f"{10 - (self.num)}", True, (0, 0, 0))
+        screen.blit(text, (50, 50))
+
+    def lifeCount(self):
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+         f"{self.numLives}", True, (0, 0, 0))
+        screen.blit(text, (50, 110))
+
+
     def coinTotal(self):
         global coins
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
@@ -278,18 +304,18 @@ class gameState():
         return last
 
     # high score for hard
-    def updateScoresHard(self):
-        self.stateScore = "hard"
-        f = open('scoresHard.txt','r')
-        file = f.readlines()
-        last = int(file[0])
-        if last < int(score):
-            f.close() 
-            file = open('scoresHard.txt', 'w') 
-            file.write(str(score)) 
-            file.close() 
-            return score       
-        return last
+    # def updateScoresHard(self):
+    #     self.stateScore = "hard"
+    #     f = open('scoresHard.txt','r')
+    #     file = f.readlines()
+    #     last = int(file[0])
+    #     if last < int(score):
+    #         f.close() 
+    #         file = open('scoresHard.txt', 'w') 
+    #         file.write(str(score)) 
+    #         file.close() 
+    #         return score       
+    #     return last
 
     # sum of coins
     # use for buying characters 
@@ -329,7 +355,6 @@ class gameState():
 
     def bank(self):
         money = self.readCoins()
-        global coins
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Coins: {money}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 80))
@@ -344,7 +369,6 @@ class gameState():
         elif self.trainRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.trainY -= 500 ## move other ojects with it
-            # print("revived1")
 
         # sliding sprite
         if self.slideRect.colliderect(rectRun) and self.collideSlide != True and \
@@ -355,7 +379,6 @@ class gameState():
         elif self.slideRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.slideY -= 500
-            # print("revived2")
         
         # jump sprite
         if self.jumpRect.colliderect(rectRun) and self.collideJump != True and \
@@ -366,7 +389,6 @@ class gameState():
         elif self.jumpRect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.jumpY -= 500
-            # print("revived3")
 
         # train hard
         if self.train2Rect.colliderect(rectRun) and self.jets == False and self.numLives <= 0 and self.lives == False:
@@ -376,7 +398,6 @@ class gameState():
         elif self.train2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.train2Y -= 500
-            # print("revived4")
 
         # slide hard
         if self.slide2Rect.colliderect(rectRun) and self.collideSlide != True and \
@@ -387,8 +408,7 @@ class gameState():
         elif self.slide2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.slide2Y -= 500
-            ##the object some distance back or have no collsion enabled for short time period
-            # print("revived5")
+            ## move the object some distance back or have no collsion enabled for short time period
 
         # jump hard
         if self.jump2Rect.colliderect(rectRun) and self.collideJump != True and \
@@ -399,7 +419,6 @@ class gameState():
         elif self.jump2Rect.colliderect(rectRun) and self.numLives > 0 and self.lives == True:
             self.numLives -= 1
             self.jump2Y -= 500
-            # print("revived6")
 
         # coin collision
         if self.coinRect.colliderect(rectRun):
@@ -426,18 +445,13 @@ class gameState():
             self.coinSound.play()
             coins += 1
 
-        # print(self.jets)
-        # print(self.lives)
-
         # collison with boosters
         if self.jetpackRect.colliderect(rectRun) and self.i < 100:
             self.jetpackY = - 2000
             self.jetpackX = random.choice(self.jetpackXChoices)
             coins += 100
             self.jets = True
-            # screen.blit()
-            # self.timer = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
-            # f"time: {10 - self.i}", True, (0, 0, 0))
+            self.powerUp.play()
         elif self.i >= 1000:
             self.i = 0
             self.jets = False
@@ -447,12 +461,10 @@ class gameState():
             self.extraLifeX = random.choice(self.extraLifeXChoices)
             self.lives = True
             self.numLives += 1
-            # print(self.numLives)
+            self.powerUp.play()
         elif self.numLives <= 0:
             self.lives = False
-            ## add extra life box like for score to see how many you have
-            # save num of extra lives
-
+    
     # add something here for different high scores
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -480,6 +492,8 @@ class gameState():
             self.click = False
 
     def startPage(self):
+        self.updateCoin = True
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -507,8 +521,15 @@ class gameState():
         screen.blit(self.linkButton, (150, 250))
         screen.blit(self.sonicButton, (150, 350))
         screen.blit(self.marioButton, (150, 450))
+        screen.blit(self.shopText1, (110, 600))
+        screen.blit(self.shopText2, (150, 150))
+        # back to start button
+        if self.unbuy == True:
+            screen.blit(self.fail, (100, 400))
+            self.unbuy = False
+
         # show total coins
-        self.bank() # put limit that coins cannot go below 0
+        self.bank()
         pygame.display.update()
         pygame.display.flip()
 
@@ -516,19 +537,20 @@ class gameState():
     def shopButtons(self, func):
         global coins
         if func.type == pygame.KEYDOWN:
-            if func.unicode == "1":
+            if func.unicode == "1" and int(self.readCoins()) >= 100:
                 self.buy = True
                 coins -=100
                 self.updateShopCoins()
-                print("1")
+            elif func.unicode == "1" and int(self.readCoins()) < 100:
+                self.unbuy = True
 
-            if func.unicode == "2":
+            if func.unicode == "2" and int(self.readCoins()) >= 200:
                 self.buy = True
                 coins -= 200
                 self.updateShopCoins()
-                print("2")
+            elif func.unicode == "2" and int(self.readCoins()) < 200:
+                self.unbuy = True
 
-        # print(self.buy)
         if self.rectLink.collidepoint(pygame.mouse.get_pos()) and self.click == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
@@ -556,13 +578,14 @@ class gameState():
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
 
+                coins = 0
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == False:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 if self.buy == True:
-                    print("chaaracter locked for 100 coins! Press 1 to buy")
                     self.buySonic = True
                     self.buy = False
         if self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == True:
@@ -577,13 +600,14 @@ class gameState():
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
 
+                coins = 0
+
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == False and self.buy == True:
             if pygame.mouse.get_pressed()[0] == 1:
                 self.click = True
                 if self.buy == True:
-                    print("character locked for 200 coins! Press 2 to buy")
                     self.buyMario = True
                     self.buy = False
 
@@ -591,7 +615,7 @@ class gameState():
             self.click = False
 
     def gameOverPage(self):
-        global coins
+        global coins, score, gameSpeed
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -602,6 +626,8 @@ class gameState():
                     self.click = True
                     self.clickSound.play()
                     coins = 0
+                    score = 0
+                    gameSpeed = 0
                     self.__init__()
                     
             if pygame.mouse.get_pressed()[0] == False:
@@ -616,7 +642,6 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         currentCoins = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"Coins Collected: {coins}", True, (0, 0, 0))
-        # if self.stateScore == "easy":
         highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
         f"Highscore: {self.updateScoresEasy()}", True, (0, 0, 0))
 
@@ -628,7 +653,6 @@ class gameState():
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
-        # need to add restart button - takes to menu page
 
     def game(self):
         for event in pygame.event.get():
@@ -646,10 +670,12 @@ class gameState():
                 if event.unicode == "w":
                     self.runningLink.jump = True
                     self.collideJump = True
+                    self.jumpSound.play()
 
                 if event.unicode == "s":
                     self.slidingLink.slide = True
                     self.collideSlide = True
+                    self.slideSound.play()
 
             if event.type == pygame.KEYUP:
                 if event.unicode == "w":
@@ -713,56 +739,62 @@ class gameState():
         if pygame.Rect.colliderect(self.train2Rect, self.jumpRect):
             self.jump2Y = random.randint(-1200, -600)
 
+        if self.jetpackRect.colliderect(self.trainRect):
+            self.jetpackY = - 6000
+            self.jetpackX = random.choice(self.jetpackXChoices)
+        
+        if self.extraLifeRect.colliderect(self.train2Rect):
+            self.extraLifeY = - 3000
+            self.extraLifeX = random.choice(self.extraLifeXChoices)
+
         # coin collsion detection
-        if self.coinY < 750:
+        if self.coinY < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
             self.coinY += 20 + gameSpeed
             self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
-        else:
+        elif self.coinY > 750 and self.state == "gameStateHard" or self.coinY > 750 and self.state == "gameStateNormal":
             self.coinY = random.randint(-300, 0)
             self.coinX = random.choice(self.coinXChoices)
 
-        if self.coin2Y < 750:
+        if self.coin2Y < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
             self.coin2Y += 20 + gameSpeed
             self.coin2Rect = self.coin2.get_rect(topleft = (self.coin2X, self.coin2Y))
-        else:
+        elif self.coin2Y > 750 and self.state == "gameStateHard" or self.coin2Y > 750 and self.state == "gameStateNormal":
             self.coin2Y = random.randint(-300, 0)
             self.coin2X = random.choice(self.coin2XChoices)
 
-        if self.coin3Y < 750:
+        if self.coin3Y < 750 and self.state == "gameStateHard" or self.coin3Y < 750 and self.state == "gameStateNormal":
             self.coin3Y += 20 + gameSpeed
             self.coin3Rect = self.coin3.get_rect(topleft = (self.coin3X, self.coin3Y))
-        else:
+        elif self.coin3Y > 750 and self.state == "gameStateHard" or self.coin3Y > 750 and self.state == "gameStateNormal":
             self.coin3Y = random.randint(-300, 0)
             self.coin3X = random.choice(self.coin3XChoices)
 
-        if self.coin4Y < 750:
+        if self.coin4Y < 750 and self.state == "gameStateHard" or self.coin4Y < 750 and self.state == "gameStateNormal":
             self.coin4Y += 20 + gameSpeed
             self.coin4Rect = self.coin4.get_rect(topleft = (self.coin4X, self.coin4Y))
-        else:
+        elif self.coin4Y > 750 and self.state == "gameStateHard" or self.coin4Y > 750 and self.state == "gameStateNormal":
             self.coin4Y = random.randint(-300, 0)
             self.coin4X = random.choice(self.coin4XChoices)
 
         # boosters
-        if self.jetpackY < 750:
+        if self.jetpackY < 750 and self.state == "gameStateHard":
             self.jetpackY += 20 + gameSpeed
             self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
-        else:
+        elif self.jetpackY >=750 and self.state == "gameStateHard":
             self.jetpackY = -1000
             self.jetpackX = random.choice(self.jetpackXChoices)
 
-        if self.extraLifeY < 750:
+        if self.extraLifeY < 750 and self.state == "gameStateHard":
             self.extraLifeY += 20 + gameSpeed
             self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
-        else:
+        elif self.extraLifeY >= 750 and self.state == "gameStateHard":
             self.extraLifeY = -1000
             self.extraLifeX = random.choice(self.extraLifeXChoices)
 
-        
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
             self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY - 10))
         else:
-            # spawn train in random location
             self.trainY = -600
             self.trainX = random.choice(self.trainXChoices)
 
@@ -770,7 +802,6 @@ class gameState():
             self.train2Y += 20 + gameSpeed * 2
             self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
         elif self.state == "gameStateHard" and self.train2Y > 750:
-            # spawn train in random location
             self.train2Y = random.randint(-1200, -600)
             self.train2X = random.choice(self.train2XChoices)
 
@@ -817,6 +848,7 @@ class gameState():
             self.slide2X = random.choice(self.slide2XChoices)
 
         screen.blit(background, (0, 0)) # coordinates x1 y1
+
         screen.blit(self.trainObs, (self.trainX, self.trainY))
         if self.state == "gameStateHard":
             screen.blit(self.train2Obs, (self.train2X, self.train2Y))
@@ -824,27 +856,37 @@ class gameState():
             screen.blit(self.jump2Obs, (self.jump2X, self.jump2Y))
         if self.state == "gameStateHard" or self.state == "gameStateNormal":
             screen.blit(self.slide2Obs, (self.slide2X, self.slide2Y))
-        screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
-        screen.blit(self.coin, (self.coinX, self.coinY))
-        screen.blit(self.coin, (self.coin2X, self.coin2Y))
-        screen.blit(self.coin, (self.coin3X, self.coin3Y))
-        screen.blit(self.coin, (self.coin4X, self.coin4Y))
 
-        screen.blit(self.jetpack, (self.jetpackX, self.jetpackY))
-        screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
-        # screen.blit(self.timer, (width/2 - 100, 100)) # booster timer
+        screen.blit(self.jumpObs, (self.jumpX, self.jumpY))
+        if self.state == "gameStateNormal" or self.state == "gameStateHard":
+            screen.blit(self.coin, (self.coinX, self.coinY))
+            screen.blit(self.coin, (self.coin2X, self.coin2Y))
+            screen.blit(self.coin, (self.coin3X, self.coin3Y))
+            screen.blit(self.coin, (self.coin4X, self.coin4Y))
+
+        if self.state == "gameStateHard":
+            screen.blit(self.jetpack, (self.jetpackX, self.jetpackY))
+            screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
 
         self.linkSlides.draw(screen)
         self.linkRun.draw(screen)
-        screen.blit(self.slideObs, (self.slideX, self.slideY))
         self.linkRun.update(140, 70)
         self.slidingLink.update()
+        screen.blit(self.slideObs, (self.slideX, self.slideY))
 
-        # pygame.draw.rect(screen, (0, 255, 0), self.slideRect)  ##########
-        # pygame.draw.rect(screen, (255, 255, 0), self.jump2Rect)  ##########
+        if self.jets == True:
+            pygame.draw.rect(screen, (200, 255, 255), (25, 50, 50, 50))
+            # self.jetCounter()
+            screen.blit(self.jetButton, (100, 50))
+        if self.lives == True:
+            pygame.draw.rect(screen, (255, 200, 255), (25, 100, 50, 50))
+            self.lifeCount()
+            screen.blit(self.extraButton, (100, 100))
+
         pygame.draw.rect(screen, (255, 255, 255), (width - 175, 40, 150, 75))
         self.scoring()
-        self.coinTotal()
+        if self.state == "gameStateNormal" or self.state == "gameStateHard":
+            self.coinTotal()
         pygame.display.update()
         pygame.display.flip() # make running look more smoother
 
@@ -879,7 +921,7 @@ gameState1 = gameState()
 
 # intro variables
 introBackground = pygame.Surface((width, height))
-introBackground.fill((206, 147, 216))
+introBackground.fill((255, 191, 0))
 introText = pygame.image.load("metroManiacs.png")
 
 # outro variables
@@ -888,11 +930,6 @@ gameBackground.fill((255, 255, 102))
 
 # coin variables
 coins = 0
-
-# sliding sprite pics
-# linkSlides = pygame.sprite.GroupSingle()
-# slidingLink = Slide(width/2, height - 100)
-# linkSlides.add(linkSlides)
 
 # main loop
 running = True
