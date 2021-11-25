@@ -739,6 +739,7 @@ class gameState():
         if pygame.Rect.colliderect(self.train2Rect, self.jumpRect):
             self.jump2Y = random.randint(-1200, -600)
 
+        # collision with boosters
         if self.jetpackRect.colliderect(self.trainRect):
             self.jetpackY = - 6000
             self.jetpackX = random.choice(self.jetpackXChoices)
@@ -749,43 +750,43 @@ class gameState():
 
         # coin collsion detection
         if self.coinY < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
-            self.coinY += 20 + gameSpeed
+            self.coinY += 20 + gameSpeed * 1.5
             self.coinRect = self.coin.get_rect(topleft = (self.coinX, self.coinY))
-        elif self.coinY > 750 and self.state == "gameStateHard" or self.coinY > 750 and self.state == "gameStateNormal":
+        elif self.coinY >= 750 and self.state == "gameStateHard" or self.coinY >= 750 and self.state == "gameStateNormal":
             self.coinY = random.randint(-300, 0)
             self.coinX = random.choice(self.coinXChoices)
 
-        if self.coin2Y < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
-            self.coin2Y += 20 + gameSpeed
+        if self.coin2Y < 750 and self.state == "gameStateHard" or self.coin2Y < 750 and self.state == "gameStateNormal":
+            self.coin2Y += 20 + gameSpeed * 1.5
             self.coin2Rect = self.coin2.get_rect(topleft = (self.coin2X, self.coin2Y))
-        elif self.coin2Y > 750 and self.state == "gameStateHard" or self.coin2Y > 750 and self.state == "gameStateNormal":
+        elif self.coin2Y >= 750 and self.state == "gameStateHard" or self.coin2Y >= 750 and self.state == "gameStateNormal":
             self.coin2Y = random.randint(-300, 0)
             self.coin2X = random.choice(self.coin2XChoices)
 
         if self.coin3Y < 750 and self.state == "gameStateHard" or self.coin3Y < 750 and self.state == "gameStateNormal":
-            self.coin3Y += 20 + gameSpeed
+            self.coin3Y += 20 + gameSpeed * 1.5
             self.coin3Rect = self.coin3.get_rect(topleft = (self.coin3X, self.coin3Y))
-        elif self.coin3Y > 750 and self.state == "gameStateHard" or self.coin3Y > 750 and self.state == "gameStateNormal":
+        elif self.coin3Y >= 750 and self.state == "gameStateHard" or self.coin3Y >= 750 and self.state == "gameStateNormal":
             self.coin3Y = random.randint(-300, 0)
             self.coin3X = random.choice(self.coin3XChoices)
 
         if self.coin4Y < 750 and self.state == "gameStateHard" or self.coin4Y < 750 and self.state == "gameStateNormal":
-            self.coin4Y += 20 + gameSpeed
+            self.coin4Y += 20 + gameSpeed * 1.5
             self.coin4Rect = self.coin4.get_rect(topleft = (self.coin4X, self.coin4Y))
-        elif self.coin4Y > 750 and self.state == "gameStateHard" or self.coin4Y > 750 and self.state == "gameStateNormal":
+        elif self.coin4Y >= 750 and self.state == "gameStateHard" or self.coin4Y >= 750 and self.state == "gameStateNormal":
             self.coin4Y = random.randint(-300, 0)
             self.coin4X = random.choice(self.coin4XChoices)
 
         # boosters
         if self.jetpackY < 750 and self.state == "gameStateHard":
-            self.jetpackY += 20 + gameSpeed
+            self.jetpackY += 20 + gameSpeed * 2
             self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
         elif self.jetpackY >=750 and self.state == "gameStateHard":
             self.jetpackY = -1000
             self.jetpackX = random.choice(self.jetpackXChoices)
 
         if self.extraLifeY < 750 and self.state == "gameStateHard":
-            self.extraLifeY += 20 + gameSpeed
+            self.extraLifeY += 20 + gameSpeed * 2
             self.extraLifeRect = self.extraLife.get_rect(topleft = (self.extraLifeX, self.extraLifeY))
         elif self.extraLifeY >= 750 and self.state == "gameStateHard":
             self.extraLifeY = -1000
@@ -798,10 +799,10 @@ class gameState():
             self.trainY = -600
             self.trainX = random.choice(self.trainXChoices)
 
-        if self.state == "gameStateHard" and self.train2Y < 750:
+        if self.state == "gameStateHard" and self.train2Y < 800:
             self.train2Y += 20 + gameSpeed * 2
             self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
-        elif self.state == "gameStateHard" and self.train2Y > 750:
+        elif self.state == "gameStateHard" and self.train2Y >= 800:
             self.train2Y = random.randint(-1200, -600)
             self.train2X = random.choice(self.train2XChoices)
 
@@ -812,17 +813,17 @@ class gameState():
             self.jumpY = -600 
             self.jumpX = random.choice(self.jumpXChoices)
 
-        if self.state == "gameStateHard" and self.jump2Y < 750:
+        if self.state == "gameStateHard" and self.jump2Y < 800:
             self.jump2Y += 20 + gameSpeed * 2
             self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
-        elif self.state == "gameStateHard" and self.jump2Y > 750:
+        elif self.state == "gameStateHard" and self.jump2Y >= 800:
             self.jump2Y = random.randint(-1200, -600)
             self.jump2X = random.choice(self.jump2XChoices)
 
-        if self.state == "gameStateNormal" and self.jump2Y < 750:
+        if self.state == "gameStateNormal" and self.jump2Y < 800:
             self.jump2Y += 20 + gameSpeed * 1.5
             self.jump2Rect = self.jump2Obs.get_rect(topleft = (self.jump2X, self.jump2Y - 10))
-        elif self.state == "gameStateNormal" and self.jump2Y > 750:
+        elif self.state == "gameStateNormal" and self.jump2Y >= 800:
             self.jump2Y = random.randint(-1200, -600)
             self.jump2X = random.choice(self.jump2XChoices)
 
@@ -833,17 +834,17 @@ class gameState():
             self.slideY = -750
             self.slideX = random.choice(self.slideXChoices)
 
-        if self.state == "gameStateHard" and self.slide2Y < 750:
+        if self.state == "gameStateHard" and self.slide2Y < 800:
             self.slide2Y += 20 + gameSpeed * 2
             self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
-        elif self.state == "gameStateHard" and self.slide2Y > 750:
+        elif self.state == "gameStateHard" and self.slide2Y >= 800:
             self.slide2Y = random.randint(-1200, -600)
             self.slide2X = random.choice(self.slide2XChoices)
 
-        if self.state == "gameStateNormal" and self.slide2Y < 750:
+        if self.state == "gameStateNormal" and self.slide2Y < 800:
             self.slide2Y += 20 + gameSpeed * 1.5
             self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y - 10))
-        elif self.state == "gameStateNormal" and self.slide2Y > 750:
+        elif self.state == "gameStateNormal" and self.slide2Y >= 800:
             self.slide2Y = random.randint(-1200, -600)
             self.slide2X = random.choice(self.slide2XChoices)
 
@@ -921,7 +922,7 @@ gameState1 = gameState()
 
 # intro variables
 introBackground = pygame.Surface((width, height))
-introBackground.fill((255, 191, 0))
+introBackground.fill((252, 238, 117))
 introText = pygame.image.load("metroManiacs.png")
 
 # outro variables
