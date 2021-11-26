@@ -132,6 +132,12 @@ class gameState():
         self.powerUp = pygame.mixer.Sound("powerUp.mp3")
         self.overs = "level"
 
+        self.player1 = True
+        self.player2 = False
+        self.multiMode = False
+        self.score1 = 0
+        self.score2 = 0
+
         # train 1 variables
         self.trainXChoices = [30, 185, 320]
         self.trainX = random.choice(self.trainXChoices)
@@ -183,15 +189,18 @@ class gameState():
         self.shopButton = pygame.image.load("buttons/shop.png")
         self.restartButton = pygame.image.load("buttons/restart.png")
         self.backButton = pygame.image.load("buttons/backButton.png")
+        # self.multiButton = pygame.image.load("buttons/multi.png") ######
 
-        self.rectEasy = self.easyButton.get_rect(topleft = (170, 469))
-        self.rectNormal = self.normalButton.get_rect(topleft = ((170, 564)))
-        self.rectHard = self.hardButton.get_rect(topleft = ((170, 664)))
-        self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))
+        self.rectEasy = self.easyButton.get_rect(topleft = (150, 400))
+        self.rectNormal = self.normalButton.get_rect(topleft = ((150, 510)))
+        self.rectHard = self.hardButton.get_rect(topleft = ((150, 610)))
+        self.rectShop = self.shopButton.get_rect(topleft = ((150, 710)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
         self.rectRestart = self.restartButton.get_rect(topleft = (150, 600))
-        self.rectBack = self.backButton.get_rect(topleft = (25, 50)) ######
+        self.rectBack = self.backButton.get_rect(topleft = (25, 50))
+        # self.rectMulti = self.multiButton.get_rect(topleft = (50, 200)) #####
+
 
         # shop buttons
         self.linkButton = pygame.image.load("buttons/Link.png")
@@ -275,14 +284,18 @@ class gameState():
         screen.blit(text, (width - 150, 50))
 
     def jetCounter(self):
-        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 24),
-         f"{10 - (self.num)}", True, (0, 0, 0))
-        screen.blit(text, (50, 50))
+        if self.i%40 == 0:
+            self.num += 1
+        if self.num == 10:
+            self.num = 0
+        text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+        f"{10 - self.num}", True, (0, 0, 0))
+        screen.blit(text, (45, 65))
 
     def lifeCount(self):
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"{self.numLives}", True, (0, 0, 0))
-        screen.blit(text, (50, 110))
+        screen.blit(text, (45, 110))
 
     def coinTotal(self):
         global coins
@@ -520,10 +533,10 @@ class gameState():
         screen.blit(introBackground, (0, 0))
         screen.blit(introText, (-10, 50))
 
-        screen.blit(self.easyButton, (150, 450))
-        screen.blit(self.normalButton, (155, 550))
-        screen.blit(self.hardButton, (157, 650))
-        screen.blit(self.shopButton, (170, 750))
+        screen.blit(self.easyButton, (150, 410))
+        screen.blit(self.normalButton, (155, 510))
+        screen.blit(self.hardButton, (157, 610))
+        screen.blit(self.shopButton, (165, 710))
         pygame.display.update()
         pygame.display.flip()
 
@@ -595,9 +608,7 @@ class gameState():
                 self.linkSlides = pygame.sprite.GroupSingle()
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
-
                 coins = 0
-
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectSonic.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buySonic == False:
@@ -617,9 +628,7 @@ class gameState():
                 self.linkSlides = pygame.sprite.GroupSingle()
                 self.slidingLink = Slide(width/2, height - 100, self.name)
                 self.linkSlides.add(self.linkSlides)
-
                 coins = 0
-
                 self.state = "start"
                 self.clickSound.play()
         elif self.rectMario.collidepoint(pygame.mouse.get_pos()) and self.click == False and self.buyMario == False and self.buy == True:
@@ -681,26 +690,13 @@ class gameState():
             screen.blit(highscore, (width/2- 100, 200))
 
         screen.blit(currentScore, (width/2- 50, height/2))
-        screen.blit(currentCoins, (width/2- 100, height/2 + 100))
-        # screen.blit(highscore, (width/2- 100, 200))
+
+        if self.overs == "normal" or self.overs == "hard":
+            screen.blit(currentCoins, (width/2- 100, height/2 + 100))
         
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
-
-    def multiPlayer(self):
-        self.state = "play2" #### placeholder
-        # keys and collsion control
-        play1 = True, play2 = False
-        # normal game
-        # save in score1
-        # once dead play1 = False, play2 = True
-        # normal game
-        # save in score2
-        # compare score1 with score2
-        # the larger score wins
-        pass
-
 
     def game(self):
         for event in pygame.event.get():
@@ -793,7 +789,7 @@ class gameState():
             self.jetpackX = random.choice(self.jetpackXChoices)
         
         if self.extraLifeRect.colliderect(self.train2Rect):
-            self.extraLifeY = (- 7000, - 3000)
+            self.extraLifeY = random.randint(- 7000, - 3000)
             self.extraLifeX = random.choice(self.extraLifeXChoices)
 
         # coin collsion detection
@@ -925,7 +921,7 @@ class gameState():
 
         if self.jets == True:
             pygame.draw.rect(screen, (200, 255, 255), (25, 50, 50, 50))
-            # self.jetCounter()
+            self.jetCounter()
             screen.blit(self.jetButton, (100, 50))
         if self.lives == True:
             pygame.draw.rect(screen, (255, 200, 255), (25, 100, 50, 50))
