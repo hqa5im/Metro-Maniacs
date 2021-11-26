@@ -253,8 +253,8 @@ class gameState():
         self.oneRect = self.one.get_rect(topleft = (self.wordX, self.wordY))
         self.twoRect = self.two.get_rect(topleft = (self.wordX, self.wordY))
         self.fiveRect = self.five.get_rect(topleft = (self.wordX, self.wordY))
-        self.word = [self.one]
-        self.wordRect = [self.oneRect]
+        self.word = [self.one, self.five, self.one, self.one, self.two]
+        self.wordRect = [self.oneRect, self.fiveRect, self.oneRect, self.oneRect, self.twoRect]
         self.found = []
         self.lisIndex = 0
 
