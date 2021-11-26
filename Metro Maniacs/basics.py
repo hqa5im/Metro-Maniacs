@@ -246,16 +246,14 @@ class gameState():
         self.two = pygame.image.load("boosters/two.png")
         self.five = pygame.image.load("boosters/five.png")
 
-        self.wordXChoices = [80, 230, 370]
+        self.wordXChoices = [70, 220, 360]
         self.wordX = random.choice(self.wordXChoices)
         self.wordY = random.randint(-6000, 0)
 
         self.oneRect = self.one.get_rect(topleft = (self.wordX, self.wordY))
         self.twoRect = self.two.get_rect(topleft = (self.wordX, self.wordY))
         self.fiveRect = self.five.get_rect(topleft = (self.wordX, self.wordY))
-        # self.word = [self.one, self.five, self.one, self.two, self.one]
         self.word = [self.one]
-        # self.wordRect = [self.oneRect, self.fiveRect, self.oneRect, self.twoRect, self.oneRect]
         self.wordRect = [self.oneRect]
         self.found = []
         self.lisIndex = 0
@@ -370,7 +368,6 @@ class gameState():
         file = f.readline()
         f.close()
         f = open('coins.txt','w')
-        # print(coins)
         tot = int(file) + coins
         if tot <= 0:
             tot = 0
@@ -889,8 +886,6 @@ class gameState():
                 self.wordX = random.choice(self.wordXChoices)
         except IndexError:
             pass
-
-        print(self.found)  
 
         if self.trainY < 750:
             self.trainY += 20 + (gameSpeed * self.gameValue)
