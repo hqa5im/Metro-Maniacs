@@ -823,13 +823,23 @@ class gameState():
             self.jump2Y = random.randint(-1200, -600)
 
         # collision with boosters
-        if self.jetpackRect.colliderect(self.trainRect):
+        if pygame.Rect.colliderect(self.trainRect, self.jetpackRect):
             self.jetpackY = random.randint(-6000, -1000)
-            self.jetpackX = random.choice(self.jetpackXChoices)
+
+        if pygame.Rect.colliderect(self.train2Rect, self.jetpackRect):
+            self.jetpackY = random.randint(-6000, -1000)
         
-        if self.extraLifeRect.colliderect(self.train2Rect):
-            self.extraLifeY = random.randint(- 7000, - 3000)
-            self.extraLifeX = random.choice(self.extraLifeXChoices)
+        if pygame.Rect.colliderect(self.train2Rect, self.extraLifeRect):
+            self.extraLifeY = random.randint(- 7000, - 500)
+
+        if pygame.Rect.colliderect(self.trainRect, self.extraLifeRect):
+            self.extraLifeY = random.randint(- 7000, - 500)
+
+        try:
+            if pygame.Rect.colliderect(self.trainRect, self.wordRect[self.lisIndex]):
+                self.wordY = random.randint(-6000, 0)
+        except IndexError:
+            pass
 
         # coin collsion detection
         if self.coinY < 750 and self.state == "gameStateHard" or self.coinY < 750 and self.state == "gameStateNormal":
@@ -1016,8 +1026,6 @@ score = 0
 gameSpeed = 0
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((width, height))
-backSound = pygame.mixer.Sound("background.mp3")
-# backSound.play()
 pygame.display.set_caption("Metro Maniacs")
 # intro background through image
 background = pygame.image.load("purple.png")
