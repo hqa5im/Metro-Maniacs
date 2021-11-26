@@ -16,9 +16,10 @@ from sys import exit
 #                       game-music-action-faced-paced-euro-style-house-rave
 #                       -pumping-with-electronic-wobble-bass-synth-elements/
 # click sound: https://www.zapsplat.com/music/active-studio-speaker-power-switch-click-5/
-# slide sound:
-# jump sound: 
-# powerup sound:
+# powerup sound: https://www.zapsplat.com/music/retro-game-tone-digital-synth
+#               -fifths-ascend-could-be-good-for-power-up-gain-a-life-level-up-etc-2/
+# slide sound: https://www.zapsplat.com/music/closed-umbrella-slide-on-ground-1/
+# jump sound: https://www.zapsplat.com/music/retro-game-sound-jump-or-bounce-2/
 # coin sound: https://www.zapsplat.com/music/retro-8-bit-game-collect-point-00/
 # resizing pixels of images: https://lospec.com/pixel-art-scaler/
 # high score method: https://www.techwithtim.net/tutorials/game
@@ -197,7 +198,7 @@ class gameState():
         self.rectShop = self.shopButton.get_rect(topleft = ((150, 710)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
-        self.rectRestart = self.restartButton.get_rect(topleft = (150, 600))
+        self.rectRestart = self.restartButton.get_rect(topleft = (170, 600))
         self.rectBack = self.backButton.get_rect(topleft = (25, 50))
         # self.rectMulti = self.multiButton.get_rect(topleft = (50, 200)) #####
 
@@ -231,7 +232,6 @@ class gameState():
         self.jetpackRect = self.jetpack.get_rect(topleft = (self.jetpackX, self.jetpackY))
         self.jets = False
         self.jetButton = pygame.image.load("buttons/boosterButton.png")
-        self.theJet = pygame.image.load("theJet.png")
 
         # extra life
         self.extraLifeXChoices = [80, 230, 370]
@@ -242,6 +242,23 @@ class gameState():
         self.lives = False
         self.numLives = 0
         self.extraButton = pygame.image.load("buttons/extraButton.png")
+
+        # word search
+        self.one = pygame.image.load("boosters/one.png")
+        self.two = pygame.image.load("boosters/two.png")
+        self.five = pygame.image.load("boosters/five.png")
+
+        self.wordXChoices = [80, 230, 370]
+        self.wordX = random.choice(self.wordXChoices)
+        self.wordY = random.randint(-6000, 0)
+
+        self.oneRect = self.one.get_rect(topleft = (self.wordX, self.wordY))
+        self.twoRect = self.two.get_rect(topleft = (self.wordX, self.wordY))
+        self.fiveRect = self.five.get_rect(topleft = (self.wordX, self.wordY))
+        self.word = [self.one, self.five, self.one, self.two, self.one]
+        self.wordRect = [self.oneRect, self.fiveRect, self.oneRect, self.twoRect, self.oneRect]
+        self.found = []
+        self.lisIndex = 0
 
         # coin 1
         self.coinXChoices = [80, 230, 370]
@@ -493,7 +510,15 @@ class gameState():
             self.powerUp.play()
         elif self.numLives <= 0:
             self.lives = False
-    
+
+        if self.wordRect[self.lisIndex].colliderect(rectRun):
+            self.found.append(self.oneRect)
+            self.powerUp.play()
+            self.wordY = random.randint(-6000, 0)
+            self.wordX = random.choice(self.wordXChoices)
+            self.lisIndex += 1
+
+
     # add something here for different high scores
     def button(self):
         if self.rectEasy.collidepoint(pygame.mouse.get_pos()) and self.click == False:
@@ -671,30 +696,32 @@ class gameState():
             self.updateCoin = False
         
         screen.blit(gameBackground, (0, 0))
-        currentScore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+        screen.blit(outroText, (100, 100))
+
+        currentScore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 35),
          f"Score: {score}", True, (0, 0, 0))
-        currentCoins = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+        currentCoins = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 35),
          f"Coins Collected: {coins}", True, (0, 0, 0))
         
         if self.overs == "easy":
-            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 35),
             f"Highscore: {self.updateScoresEasy()}", True, (0, 0, 0))
-            screen.blit(highscore, (width/2- 100, 200))
+            screen.blit(highscore, (width/2 - 80, 400))
         if self.overs == "normal":
-            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 35),
             f"Highscore: {self.updateScoresNormal()}", True, (0, 0, 0))
-            screen.blit(highscore, (width/2- 100, 200))
+            screen.blit(highscore, (width/2 - 80, 400))
         if self.overs == "hard":
-            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
+            highscore = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 35),
             f"Highscore: {self.updateScoresHard()}", True, (0, 0, 0))
-            screen.blit(highscore, (width/2- 100, 200))
+            screen.blit(highscore, (width/2 - 80, 400))
 
-        screen.blit(currentScore, (width/2- 50, height/2))
+        screen.blit(currentScore, (width/2- 50, 450))
 
         if self.overs == "normal" or self.overs == "hard":
-            screen.blit(currentCoins, (width/2- 100, height/2 + 100))
+            screen.blit(currentCoins, (width/2- 100, 500))
         
-        screen.blit(self.restartButton, (width/2 - 100, height - 200))
+        screen.blit(self.restartButton, (width/2 - 80, 600))
         pygame.display.update()
         pygame.display.flip()
 
@@ -836,6 +863,14 @@ class gameState():
             self.extraLifeY = -1000
             self.extraLifeX = random.choice(self.extraLifeXChoices)
 
+        if self.wordY < 750 and self.state == "gameStateNormal":
+            self.wordY += 20 + gameSpeed * 2
+            self.wordRect[self.lisIndex] = self.word[self.lisIndex].get_rect(topleft = (self.wordX, self.wordY))
+        elif self.wordY >= 750 and self.state == "gameStateNormal":
+            self.lisIndex += 1
+            self.wordY = random.randint(-6000, 0)
+            self.wordX = random.choice(self.wordXChoices)
+
         if self.trainY < 750:
             self.trainY += 20 + gameSpeed
             self.trainRect = self.trainObs.get_rect(topleft = (self.trainX, self.trainY - 10))
@@ -913,6 +948,9 @@ class gameState():
             screen.blit(self.jetpack, (self.jetpackX, self.jetpackY))
             screen.blit(self.extraLife, (self.extraLifeX, self.extraLifeY))
 
+        if self.state == "gameStateNormal":
+            screen.blit(self.word[self.lisIndex], (self.wordX, self.wordY))
+
         self.linkSlides.draw(screen)
         self.linkRun.draw(screen)
         self.linkRun.update(140, 70)
@@ -975,6 +1013,7 @@ introText = pygame.image.load("metroManiacs.png")
 # outro variables
 gameBackground = pygame.Surface((width, height))
 gameBackground.fill((255, 255, 102))
+outroText = pygame.image.load("gameOver.png")
 
 # coin variables
 coins = 0
