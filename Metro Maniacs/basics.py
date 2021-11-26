@@ -182,6 +182,7 @@ class gameState():
         self.hardButton = pygame.image.load("buttons/hard.png")
         self.shopButton = pygame.image.load("buttons/shop.png")
         self.restartButton = pygame.image.load("buttons/restart.png")
+        self.backButton = pygame.image.load("buttons/backButton.png")
 
         self.rectEasy = self.easyButton.get_rect(topleft = (170, 469))
         self.rectNormal = self.normalButton.get_rect(topleft = ((170, 564)))
@@ -189,7 +190,8 @@ class gameState():
         self.rectShop = self.shopButton.get_rect(topleft = ((170, 764)))
         self.click = False
         self.clickSound = pygame.mixer.Sound("click.mp3")
-        self.rectRestart = self.restartButton.get_rect(topleft = (150, 600)) # for now
+        self.rectRestart = self.restartButton.get_rect(topleft = (150, 600))
+        self.rectBack = self.backButton.get_rect(topleft = (25, 50)) ######
 
         # shop buttons
         self.linkButton = pygame.image.load("buttons/Link.png")
@@ -317,7 +319,7 @@ class gameState():
             return score       
         return last
 
-        # high score for hard
+        # high score for normal
     def updateScoresNormal(self):
         self.stateScore = "hard"
         f = open('scoresNormal.txt','r')
@@ -538,6 +540,7 @@ class gameState():
         screen.blit(self.marioButton, (150, 450))
         screen.blit(self.shopText1, (110, 600))
         screen.blit(self.shopText2, (150, 150))
+        screen.blit(self.backButton, (25, 50))
         # back to start button
         if self.unbuy == True:
             screen.blit(self.fail, (100, 400))
@@ -625,6 +628,11 @@ class gameState():
                 if self.buy == True:
                     self.buyMario = True
                     self.buy = False
+        if self.rectBack.collidepoint(pygame.mouse.get_pos()) and self.click == False:
+            if pygame.mouse.get_pressed()[0] == 1:
+                self.click = True
+                self.state = "start"
+                self.clickSound.play()
 
         if pygame.mouse.get_pressed()[0] == False:
             self.click = False
@@ -679,6 +687,20 @@ class gameState():
         screen.blit(self.restartButton, (width/2 - 100, height - 200))
         pygame.display.update()
         pygame.display.flip()
+
+    def multiPlayer(self):
+        self.state = "play2" #### placeholder
+        # keys and collsion control
+        play1 = True, play2 = False
+        # normal game
+        # save in score1
+        # once dead play1 = False, play2 = True
+        # normal game
+        # save in score2
+        # compare score1 with score2
+        # the larger score wins
+        pass
+
 
     def game(self):
         for event in pygame.event.get():
@@ -767,11 +789,11 @@ class gameState():
 
         # collision with boosters
         if self.jetpackRect.colliderect(self.trainRect):
-            self.jetpackY = - 6000
+            self.jetpackY = random.randint(-6000, -1000)
             self.jetpackX = random.choice(self.jetpackXChoices)
         
         if self.extraLifeRect.colliderect(self.train2Rect):
-            self.extraLifeY = - 3000
+            self.extraLifeY = (- 7000, - 3000)
             self.extraLifeX = random.choice(self.extraLifeXChoices)
 
         # coin collsion detection
