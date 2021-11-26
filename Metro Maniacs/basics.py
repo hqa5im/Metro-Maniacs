@@ -150,7 +150,7 @@ class gameState():
         # train 2 variables - for hard mode
         self.train2XChoices = [30, 185, 320]
         self.train2X = random.choice(self.train2XChoices)
-        self.train2Y = random.randint(-1200, -600)
+        self.train2Y = random.randint(-1200, -700)
         self.train2Obs = pygame.image.load("obstacles/train.png")
         self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y))
 
@@ -180,7 +180,7 @@ class gameState():
         # slide 2 variables
         self.slide2XChoices = [43, 180, 330]
         self.slide2X = random.choice(self.slide2XChoices)
-        self.slide2Y = random.randint(-1200, -600)
+        self.slide2Y = random.randint(-1200, -550)
         self.slide2Obs = pygame.image.load("obstacles/slideObs.png")
         self.slide2Rect = self.slide2Obs.get_rect(topleft = (self.slide2X, self.slide2Y))
 
@@ -298,6 +298,7 @@ class gameState():
          f"Score: {score}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 50))
 
+    # counts time for jey booster to be over
     def jetCounter(self):
         if self.i%40 == 0:
             self.num += 1
@@ -307,6 +308,7 @@ class gameState():
         f"{10 - self.num}", True, (0, 0, 0))
         screen.blit(text, (45, 65))
 
+    # counts the number of lives of have
     def lifeCount(self):
         text = pygame.font.Font.render(pygame.font.SysFont("Stgotic", 32),
          f"{self.numLives}", True, (0, 0, 0))
@@ -402,6 +404,7 @@ class gameState():
          f"Coins: {money}", True, (0, 0, 0))
         screen.blit(text, (width - 150, 80))
 
+    # checks for any possible collsions between player and object
     def collision(self):
         global coins
         # running sprite
@@ -908,7 +911,7 @@ class gameState():
             self.train2Y += 20 + gameSpeed * 2
             self.train2Rect = self.train2Obs.get_rect(topleft = (self.train2X, self.train2Y - 10))
         elif self.state == "gameStateHard" and self.train2Y >= 800:
-            self.train2Y = random.randint(-1200, -600)
+            self.train2Y = random.randint(-1200, -700)
             self.train2X = random.choice(self.train2XChoices)
 
         if self.jumpY < 750:
